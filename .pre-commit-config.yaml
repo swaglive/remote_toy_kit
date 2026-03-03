@@ -23,3 +23,21 @@ repos:
   rev: 4afcaa82fc368d40d486256bf4edba329bf667bb
   hooks:
   - id: dart-format
+
+- repo: https://github.com/compilerla/conventional-pre-commit
+  rev: v4.0.0
+  hooks:
+  - id: conventional-pre-commit
+    stages: [commit-msg]
+    args:
+    - feat
+    - fix
+    - docs
+    - style
+    - refactor
+    - perf
+    - test
+    - build
+    - ci
+    - chore
+    - revert
