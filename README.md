@@ -155,6 +155,271 @@ device.connected$.listen((bool isConnected) {
 });
 ```
 
+## Real-World Use Cases
+
+### Dependency injection with GetIt
+
+Register a single `RemoteToyKit` instance and initialize it at app startup:
+
+```dart
+import 'package:get_it/get_it.dart';
+import 'package:remote_toy_kit/remote_toy_kit.dart';
+
+void setupDependencies() {
+  GetIt.instance
+      .registerLazySingleton<RemoteToyKit>(() => RemoteToyKit(isSpecV4: true));
+}
+
+Future<void> main() async {
+  setupDependencies();
+
+  final remoteToyKit = GetIt.instance.get<RemoteToyKit>();
+  await remoteToyKit.initialize();
+
+  runApp(const MyApp());
+}
+```
+
+### BLE device browser with error handling
+
+A reusable browser class that scans for devices, batches updates with debounce, and surfaces BLE errors to the UI:
+
+```dart
+class RemoteToyBrowser {
+  final RemoteToyKit _kit;
+  final _devices = <String, RemoteToySearchedDevice>{};
+  final _error$ = PublishSubject<Object>();
+  CompositeSubscription? _subscriptions;
+
+  RemoteToyBrowser(this._kit);
+
+  Stream<Object> get onError => _error$.stream;
+
+  void startSearch() {
+    if (_kit.isSearchInProgress) return;
+    _subscriptions?.dispose();
+    _subscriptions = CompositeSubscription();
+
+    try {
+      final scanned$ = _kit.search().asBroadcastStream();
+
+      scanned$.listen(
+        (device) {
+          _devices[device.address] = device;
+        },
+        onError: (e, s) => _error$.add(e),
+        cancelOnError: false,
+      ).addTo(_subscriptions!);
+
+      scanned$
+          .debounceTime(const Duration(seconds: 1))
+          .listen((_) => _onBatchReady());
+    } catch (e) {
+      if (e is RemoteToyBluetoothException &&
+          e.code == RemoteToyBluetoothException.codeCancelSearch) {
+        return;
+      }
+      _error$.add(e);
+    }
+  }
+
+  void stopSearch() {
+    _subscriptions?.dispose();
+    _subscriptions = null;
+  }
+
+  void _onBatchReady() {
+    // Process the collected devices, e.g. update UI state.
+  }
+}
+```
+
+### Handling BLE errors in the UI
+
+Map SDK exceptions to user-facing messages:
+
+```dart
+browser.onError.listen((error) {
+  if (error is RemoteToyBluetoothException) {
+    switch (error.code) {
+      case RemoteToyBluetoothException.codeBluetoothPermission:
+        showSnackBar('Bluetooth permission is required');
+        return;
+      case RemoteToyBluetoothException.codeBluetoothOff:
+        showSnackBar('Please turn on Bluetooth');
+        return;
+    }
+  }
+  showSnackBar('An unexpected error occurred');
+});
+```
+
+### Connect with state machine pattern
+
+Manage the device lifecycle (idle / connecting / connected) with automatic reconnection:
+
+```dart
+class DeviceStateMachine {
+  final RemoteToySearchedDevice searchedDevice;
+  RemoteToyDevice? _device;
+  StreamSubscription? _connectionSub;
+
+  DeviceStateMachine({required this.searchedDevice});
+
+  Future<void> connect() async {
+    try {
+      _device = await searchedDevice.connector.connect();
+      _listenConnectionState();
+    } catch (e) {
+      // Retry after a delay
+      Future.delayed(const Duration(seconds: 5), connect);
+    }
+  }
+
+  void _listenConnectionState() {
+    _connectionSub = _device?.connected$.listen((connected) {
+      if (!connected) {
+        _device = null;
+        _connectionSub?.cancel();
+        // Auto-reconnect
+        Future.delayed(const Duration(seconds: 3), connect);
+      }
+    });
+  }
+
+  Future<void> disconnect() async {
+    _connectionSub?.cancel();
+    if (_device != null) {
+      await _device!.executeCommand(
+        message: const RemoteToyClientMessage.stopDeviceCmd(),
+      );
+      await Future.delayed(const Duration(milliseconds: 100));
+      await _device!.disconnect();
+      _device = null;
+    }
+  }
+}
+```
+
+### Send output commands per device feature (V4)
+
+Iterate over a device's features and send matching output commands using `convertClientCmdtoOutputCmd`:
+
+```dart
+Future<void> sendVibration(RemoteToyDevice device, double intensity) async {
+  final commandValue = ClientDeviceCommandValue.fromDouble(value: intensity);
+  final command = ClientDeviceOutputCommand.vibrate(value: commandValue);
+
+  final messages = device.features
+      .where((f) => f.featureType == FeatureType.vibrate)
+      .map((f) => f.convertClientCmdtoOutputCmd(command))
+      .map((cmd) => RemoteToyClientMessage.outputCmd(command: cmd));
+
+  for (final message in messages) {
+    await device.executeCommand(message: message).catchError((e) {
+      if (e is RemoteToyDeviceException &&
+          e.code == RemoteToyDeviceException.codeCommandNotSupported) {
+        return; // skip unsupported features gracefully
+      }
+      rethrow;
+    });
+  }
+}
+```
+
+### Read battery level
+
+Query the battery sensor for a connected device:
+
+```dart
+Future<void> readBattery(RemoteToyDevice device) async {
+  final batteryFeature = device.features
+      .firstWhereOrNull((f) => f.featureType == FeatureType.battery);
+  if (batteryFeature == null) return;
+
+  // V4
+  final response = await device.executeCommand(
+    message: RemoteToyClientMessage.inputCmd(
+      command: InputCmd.v4(
+        featureIndex: batteryFeature.featureIndex,
+        inputType: InputType.battery,
+        inputCommandType: InputCommandType.read,
+      ),
+    ),
+  );
+
+  if (response is RemoteToyServerReadingMessage) {
+    print('Battery data: ${response.data}');
+  }
+}
+```
+
+### Throttled slider control
+
+Use `rxdart` to throttle slider value changes so the device isn't flooded with commands:
+
+```dart
+class VibrateSlider extends StatefulWidget {
+  final RemoteToyDevice device;
+  final RemoteToyDeviceFeature feature;
+  const VibrateSlider({required this.device, required this.feature, super.key});
+
+  @override
+  State<VibrateSlider> createState() => _VibrateSliderState();
+}
+
+class _VibrateSliderState extends State<VibrateSlider> {
+  final _value$ = BehaviorSubject<double>.seeded(0);
+  late final StreamSubscription _sub;
+
+  @override
+  void initState() {
+    super.initState();
+    _sub = _value$
+        .throttleTime(const Duration(milliseconds: 100), trailing: true)
+        .listen((value) {
+      final cmdValue = ClientDeviceCommandValue.fromDouble(value: value);
+      final command = ClientDeviceOutputCommand.vibrate(value: cmdValue);
+      final outputCmd = widget.feature.convertClientCmdtoOutputCmd(command);
+      widget.device.executeCommand(
+        message: RemoteToyClientMessage.outputCmd(command: outputCmd),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Slider(
+      value: _value$.value,
+      onChanged: (v) {
+        setState(() => _value$.add(v));
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _sub.cancel();
+    _value$.close();
+    super.dispose();
+  }
+}
+```
+
+### Graceful stop-then-disconnect
+
+Always stop device output before disconnecting to avoid leaving the device in an active state:
+
+```dart
+Future<void> safeDisconnect(RemoteToyDevice device) async {
+  await device.executeCommand(
+    message: const RemoteToyClientMessage.stopDeviceCmd(),
+  );
+  await Future.delayed(const Duration(milliseconds: 100));
+  await device.disconnect();
+}
+```
+
 ## API Reference
 
 ### RemoteToyKit
