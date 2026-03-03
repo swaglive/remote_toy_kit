@@ -11,6 +11,7 @@ library core.message.v4.checked_input_cmd;
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../message.dart';
 import '../../../configuration/configuration.dart';
+import '../../exceptions.dart';
 import 'try_from_device_attributes.dart';
 
 part 'checked_input_cmd.freezed.dart';
@@ -52,7 +53,10 @@ sealed class CheckedInputCmd
   ) {
     final features = attributes.features;
     if (features == null) {
-      throw Exception('No features found');
+      throw RemoteToyDeviceException(
+        code: RemoteToyDeviceException.codeDeviceNoFeatures,
+        message: 'Device has no features configured in protocol attributes',
+      );
     }
 
     final inputType = cmd.inputType;
@@ -63,7 +67,10 @@ sealed class CheckedInputCmd
     final feature = features.firstWhere(
       (feature) =>
           (feature as DeviceFeatureV4).input?.contains(inputType) == true,
-      orElse: () => throw Exception('Feature not found'),
+      orElse: () => throw RemoteToyDeviceException(
+        code: RemoteToyDeviceException.codeDeviceFeatureNotFound,
+        message: 'No feature found supporting input type $inputType',
+      ),
     ) as DeviceFeatureV4;
 
     return CheckedInputCmdV4(

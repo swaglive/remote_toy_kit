@@ -12,6 +12,7 @@ import '../../../configuration/attribute/protocol_attributes.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../v4/output_cmd.dart';
 import '../../../configuration/attribute/device_feature.dart';
+import '../../exceptions.dart';
 import 'try_from_device_attributes.dart';
 
 part 'checked_output_cmd.freezed.dart';
@@ -50,7 +51,10 @@ sealed class CheckedOutputCmd
   ) {
     final features = attributes.features;
     if (features == null) {
-      throw Exception('No features found');
+      throw RemoteToyDeviceException(
+        code: RemoteToyDeviceException.codeDeviceNoFeatures,
+        message: 'Device has no features configured in protocol attributes',
+      );
     }
 
     final outputType = cmd.command.outputType;
@@ -59,13 +63,19 @@ sealed class CheckedOutputCmd
     final feature = features.firstWhere(
       (feature) =>
           (feature as DeviceFeatureV4).output?.contains(outputType) == true,
-      orElse: () => throw Exception('Feature not found'),
+      orElse: () => throw RemoteToyDeviceException(
+        code: RemoteToyDeviceException.codeDeviceFeatureNotFound,
+        message: 'No feature found supporting output type $outputType',
+      ),
     ) as DeviceFeatureV4;
 
     final output = feature.output;
     final value = cmd.command.value;
     if (output == null) {
-      throw Exception('Output not found');
+      throw RemoteToyDeviceException(
+        code: RemoteToyDeviceException.codeDeviceOutputNotFound,
+        message: 'Feature has no output configuration',
+      );
     }
 
     // Calculate new value and generate checked command

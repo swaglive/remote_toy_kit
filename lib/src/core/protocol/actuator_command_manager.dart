@@ -8,6 +8,7 @@ library core.protocol.actuator_command_manager;
 import 'package:collection/collection.dart';
 
 import '../../configuration/configuration.dart';
+import '../exceptions.dart';
 import '../message/message.dart';
 import '../../util/logger.dart';
 
@@ -180,8 +181,13 @@ class ActuatorCommandManager {
 
     for (final command in commands) {
       if (command.$1 >= featureStatus.length) {
-        throw Exception(
-            'Command requests feature index ${command.$1}, which does not exist.');
+        throw RemoteToyDeviceException(
+          code: RemoteToyDeviceException.codeCommandFeatureIndexError,
+          message: RemoteToyDeviceException.getFeatureIndexErrorMessage(
+            count: featureStatus.length,
+            index: command.$1,
+          ),
+        );
       }
     }
 
@@ -217,7 +223,10 @@ class ActuatorCommandManager {
     // First, make sure this is a valid command, that contains at least one
     // subcommand.
     if (msg.scalars.isEmpty) {
-      throw Exception('ScalarCmd has 0 commands, will not do anything.');
+      throw RemoteToyDeviceException(
+        code: RemoteToyDeviceException.codeCommandEmpty,
+        message: 'ScalarCmd contains no subcommands',
+      );
     }
 
     // <Feature Index, ScalarCmd Index>
@@ -262,7 +271,10 @@ class ActuatorCommandManager {
     // First, make sure this is a valid command, that contains at least one
     // command.
     if (msg.rotations.isEmpty) {
-      throw Exception('RotateCmd has 0 commands, will not do anything.');
+      throw RemoteToyDeviceException(
+        code: RemoteToyDeviceException.codeCommandEmpty,
+        message: 'RotateCmd contains no subcommands',
+      );
     }
 
     // Create result list sized to the number of rotation-capable features

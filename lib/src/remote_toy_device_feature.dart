@@ -8,6 +8,7 @@ library remote_toy_device_feature;
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'configuration/configuration.dart';
+import 'core/exceptions.dart';
 import 'core/message/message.dart';
 
 part 'remote_toy_device_feature.freezed.dart';
@@ -55,8 +56,10 @@ sealed class RemoteToyDeviceFeature with _$RemoteToyDeviceFeature {
       return value;
     }
 
-    throw Exception(
-      "$value is larger than the maximum number of steps (${featureOutput.stepCount}).",
+    throw RemoteToyDeviceException(
+      code: RemoteToyDeviceException.codeCommandPayloadInvalid,
+      message:
+          'Step value $value exceeds the maximum number of steps (${featureOutput.stepCount})',
     );
   }
 
@@ -66,8 +69,10 @@ sealed class RemoteToyDeviceFeature with _$RemoteToyDeviceFeature {
     double floatAmount,
   ) {
     if (floatAmount < -1.0 || floatAmount > 1.0) {
-      throw Exception(
-        'Float values must be between 0.0 and 1.0',
+      throw RemoteToyDeviceException(
+        code: RemoteToyDeviceException.codeCommandPayloadInvalid,
+        message:
+            'Float value $floatAmount is out of range, must be between -1.0 and 1.0',
       );
     }
 

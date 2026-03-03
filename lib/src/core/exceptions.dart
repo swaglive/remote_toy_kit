@@ -50,6 +50,10 @@ class RemoteToyDeviceException implements Exception {
       'command_feature_index_error';
   static const String codeCommandFeatureTypeMismatch =
       'command_feature_type_mismatch';
+  static const String codeDeviceNoFeatures = 'device_no_features';
+  static const String codeDeviceFeatureNotFound = 'device_feature_not_found';
+  static const String codeDeviceOutputNotFound = 'device_output_not_found';
+  static const String codeCommandEmpty = 'command_empty';
 
   final String code;
   final String? message;
