@@ -1,0 +1,62 @@
+name: QA
+
+on:
+  pull_request:
+    types:
+    - opened
+    - reopened
+    - synchronize
+    - ready_for_review
+    paths-ignore:
+    - '**.md'
+    - '.vscode/'
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup - Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version-file: pubspec.yaml
+        channel: stable
+        cache: true
+
+    - name: Setup - Git Credential
+      run: git config --global url."https://x-access-token:${{ secrets.GH_USER_SWAG_BOT }}@github.com/".insteadOf "https://github.com/"
+
+    - name: Install Dependencies
+      run: flutter pub get
+
+    - name: Run - Unit Tests
+      run: flutter test
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup - Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version-file: pubspec.yaml
+        channel: stable
+        cache: true
+
+    - name: Setup - Git Credential
+      run: git config --global url."https://x-access-token:${{ secrets.GH_USER_SWAG_BOT }}@github.com/".insteadOf "https://github.com/"
+
+    - name: Install Dependencies
+      run: flutter pub get
+
+    - name: Run - Dart Analyze
+      run: dart analyze
+
+    - name: Run - pre-commit
+      uses: pre-commit/action@v3.0.1
