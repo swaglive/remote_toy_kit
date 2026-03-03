@@ -1,0 +1,17 @@
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    - prefer_relative_imports
+    - eol_at_end_of_file
+    - unnecessary_await_in_return
+
+analyzer:
+  exclude:
+    - "**/*.freezed.dart"
+    - "**/*.gen.dart"
+    - "**/*.g.dart"
+    - "**/*.gr.dart"
+    - "**/*.gm.dart"
+  errors:
+    invalid_annotation_target: ignore

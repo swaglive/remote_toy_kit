@@ -1,0 +1,40 @@
+name: remote_toy_kit
+description: 'Easy to control remote toy. Port from buttplug'
+version: 0.0.1
+publish_to: none
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+  flutter: '>=3.27.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  collection: ^1.17.0
+  rxdart: ^0.28.0
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.9.0
+  fimber:
+    git:
+      url: https://github.com/swaglive/flutter-fimber.git
+      path: fimber
+      ref: 0.7.0-hotfix.4
+  flutter_blue_plus: ^1.34.5
+  flutter_web_bluetooth: ^1.0.0
+  synchronized: ^3.3.0+3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  build_runner: ^2.4.13
+  mockito: ^5.4.4
+  freezed: ^3.1.0
+  json_serializable: ^6.9.0
+
+flutter:
+  uses-material-design: true
+  generate: false
+  assets:
+    - assets/buttplug-device-config-v3.json
+    - assets/buttplug-device-config-v4.json

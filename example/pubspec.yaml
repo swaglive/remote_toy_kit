@@ -1,0 +1,28 @@
+name: remote_toy_kit_example
+description: 'Remote toy controller by Bluetooth'
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+  flutter: '>=3.27.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  rxdart: ^0.28.0
+  remote_toy_kit:
+    path: ..
+  fimber:
+    git:
+      url: https://github.com/swaglive/flutter-fimber.git
+      path: fimber
+      ref: 0.7.0-hotfix.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
