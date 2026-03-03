@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:remote_toy_kit/src/configuration/attribute/device_feature.dart';
 import 'package:remote_toy_kit/src/configuration/attribute/device_feature_input.dart';
-import 'package:remote_toy_kit/src/configuration/attribute/device_feature_input.dart';
 import 'package:remote_toy_kit/src/configuration/attribute/device_feature_input_properties.dart';
 import 'package:remote_toy_kit/src/configuration/attribute/protocol_attributes.dart';
 import 'package:remote_toy_kit/src/configuration/attribute/range_inclusive.dart';

@@ -7,7 +7,6 @@ import 'package:remote_toy_kit/src/core/exceptions.dart';
 import 'package:remote_toy_kit/src/core/message/client/client_device_command_value.dart';
 import 'package:remote_toy_kit/src/core/message/client/client_device_output_command.dart';
 import 'package:remote_toy_kit/src/core/message/feature_type.dart';
-import 'package:remote_toy_kit/src/core/message/output_type.dart';
 import 'package:remote_toy_kit/src/core/message/v4/output_cmd.dart';
 import 'package:remote_toy_kit/src/remote_toy_device_feature.dart';
 

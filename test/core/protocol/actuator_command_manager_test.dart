@@ -29,7 +29,6 @@ DeviceFeatureV3 _v3Feature({
 
 DeviceFeatureV4 _v4Feature({
   DeviceFeatureOutput? output,
-  DeviceFeatureOutput? input,
   String id = 'f0',
   int index = 0,
 }) =>
