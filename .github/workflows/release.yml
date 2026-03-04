@@ -1,0 +1,106 @@
+name: Release
+
+on:
+  push:
+    tags:
+    - 'v*'
+
+concurrency:
+  group: release
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        fetch-tags: true
+        ref: ${{ github.event.repository.default_branch }}
+
+    - name: Determine Tags
+      id: tags
+      run: |
+        CURRENT_TAG="${GITHUB_REF#refs/tags/}"
+        PREV_TAG=$(git tag --list 'v*' --sort=-v:refname | grep -v "^${CURRENT_TAG}$" | head -n 1)
+        echo "current_tag=${CURRENT_TAG}" >> "$GITHUB_OUTPUT"
+        echo "prev_tag=${PREV_TAG}" >> "$GITHUB_OUTPUT"
+        echo "Current tag: ${CURRENT_TAG}"
+        echo "Previous tag: ${PREV_TAG:-<none>}"
+
+    - name: Generate Changelog
+      id: changelog
+      run: |
+        CURRENT_TAG="${{ steps.tags.outputs.current_tag }}"
+        PREV_TAG="${{ steps.tags.outputs.prev_tag }}"
+
+        if [ -z "$PREV_TAG" ]; then
+          RANGE="$CURRENT_TAG"
+        else
+          RANGE="${PREV_TAG}..${CURRENT_TAG}"
+        fi
+
+        FEATURES=""
+        FIXES=""
+        DOCS=""
+        REFACTORS=""
+        OTHERS=""
+
+        while IFS= read -r msg; do
+          [ -z "$msg" ] && continue
+          # Strip conventional commit prefix to get clean message
+          clean=$(echo "$msg" | sed -E 's/^[a-z]+(\([^)]*\))?[!]?:\s*//')
+          case "$msg" in
+            feat*:*)     FEATURES="${FEATURES}- ${clean}"$'\n' ;;
+            fix*:*)      FIXES="${FIXES}- ${clean}"$'\n' ;;
+            docs*:*)     DOCS="${DOCS}- ${clean}"$'\n' ;;
+            refactor*:*) REFACTORS="${REFACTORS}- ${clean}"$'\n' ;;
+            *)           OTHERS="${OTHERS}- ${msg}"$'\n' ;;
+          esac
+        done < <(git log --pretty=format:"%s" "$RANGE")
+
+        BODY=""
+        [ -n "$FEATURES" ]  && BODY="${BODY}### Features"$'\n'"${FEATURES}"$'\n'
+        [ -n "$FIXES" ]     && BODY="${BODY}### Bug Fixes"$'\n'"${FIXES}"$'\n'
+        [ -n "$DOCS" ]      && BODY="${BODY}### Documentation"$'\n'"${DOCS}"$'\n'
+        [ -n "$REFACTORS" ] && BODY="${BODY}### Refactoring"$'\n'"${REFACTORS}"$'\n'
+        [ -n "$OTHERS" ]    && BODY="${BODY}### Other Changes"$'\n'"${OTHERS}"$'\n'
+
+        if [ -z "$BODY" ]; then
+          BODY="No notable changes."$'\n'
+        fi
+
+        CHANGELOG_SECTION="## ${CURRENT_TAG}"$'\n\n'"${BODY}"
+
+        EOF_MARKER=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+        echo "section<<${EOF_MARKER}" >> "$GITHUB_OUTPUT"
+        echo "$CHANGELOG_SECTION" >> "$GITHUB_OUTPUT"
+        echo "${EOF_MARKER}" >> "$GITHUB_OUTPUT"
+
+    - name: Update CHANGELOG.md
+      run: |
+        SECTION="${{ steps.changelog.outputs.section }}"
+        if [ -f CHANGELOG.md ]; then
+          EXISTING=$(cat CHANGELOG.md)
+          printf '%s\n\n%s\n' "$SECTION" "$EXISTING" > CHANGELOG.md
+        else
+          printf '%s\n' "$SECTION" > CHANGELOG.md
+        fi
+
+    - name: Commit CHANGELOG.md
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: 'chore: update CHANGELOG.md for ${{ steps.tags.outputs.current_tag }}'
+        file_pattern: CHANGELOG.md
+        branch: ${{ github.event.repository.default_branch }}
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ steps.tags.outputs.current_tag }}
+        name: ${{ steps.tags.outputs.current_tag }}
+        body: ${{ steps.changelog.outputs.section }}
