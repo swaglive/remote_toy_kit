@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -21,6 +22,7 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
         ref: ${{ github.event.repository.default_branch }}
+        token: ${{ secrets.GH_USER_SWAG_BOT }}
 
     - name: Determine Tags
       id: tags
@@ -91,12 +93,19 @@ jobs:
           printf '%s\n' "$SECTION" > CHANGELOG.md
         fi
 
-    - name: Commit CHANGELOG.md
-      uses: stefanzweifel/git-auto-commit-action@v5
+    - name: Create Pull Request for CHANGELOG.md
+      uses: peter-evans/create-pull-request@v7
       with:
-        commit_message: 'chore: update CHANGELOG.md for ${{ steps.tags.outputs.current_tag }}'
-        file_pattern: CHANGELOG.md
-        branch: ${{ github.event.repository.default_branch }}
+        token: ${{ secrets.GH_USER_SWAG_BOT }}
+        commit-message: 'chore: update CHANGELOG.md for ${{ steps.tags.outputs.current_tag }}'
+        branch: changelog/${{ steps.tags.outputs.current_tag }}
+        base: ${{ github.event.repository.default_branch }}
+        title: 'chore: update CHANGELOG.md for ${{ steps.tags.outputs.current_tag }}'
+        body: |
+          Auto-generated changelog update for **${{ steps.tags.outputs.current_tag }}**.
+
+          ${{ steps.changelog.outputs.section }}
+        labels: changelog
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
