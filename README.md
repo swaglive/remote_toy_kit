@@ -20,8 +20,8 @@ Add the dependency to your `pubspec.yaml`:
 dependencies:
   remote_toy_kit:
     git:
-      url: <repo-url>
-      path: remote_toy_kit
+      url: git@github.com:swaglive/remote_toy_kit.git
+      ref: v0.1.0  # e.g. v0.1.0
 ```
 
 ### Platform setup
@@ -535,6 +535,37 @@ flutter run
 ```bash
 flutter test
 ```
+
+### Commit conventions
+
+This repo enforces [Conventional Commits](https://www.conventionalcommits.org/) via a `commit-msg` pre-commit hook. Every commit message must follow the format:
+
+```
+<type>: <description>
+```
+
+Allowed types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
+
+Install the hooks after cloning:
+
+```bash
+pre-commit install
+```
+
+### Creating a release
+
+The release workflow runs automatically when a tag matching `v*` is pushed. It generates a changelog from conventional commit messages and creates a GitHub Release.
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+The workflow will:
+
+1. Collect commits since the previous tag and categorize them (`feat`, `fix`, `docs`, `refactor`, etc.).
+2. Open a PR that prepends the new section to `CHANGELOG.md`.
+3. Create a GitHub Release with the generated changelog.
 
 ## Dependencies
 
