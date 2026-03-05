@@ -1,12 +1,11 @@
 /// Web Browser implementation of the [RemoteToyKit] SDK.
 ///
 /// Uses the Web Bluetooth API to scan for and connect to BLE
-/// remote-toy devices. Initialization is guarded by a [Lock] to
+/// remote-toy devices. Initialization uses future-caching to
 /// prevent duplicate loading of configs.
 library web.remote_toy_kit_web;
 
 import 'package:flutter_web_bluetooth/flutter_web_bluetooth.dart';
-import 'package:synchronized/synchronized.dart';
 
 import '../../remote_toy_kit.dart';
 import '../core/protocol/protocol.dart';
@@ -15,8 +14,7 @@ import 'task/search_toy_web_task.dart';
 
 /// Browser-side [RemoteToyKit] implementation backed by Web Bluetooth.
 class RemoteToyKitWeb implements RemoteToyKit {
-  final Lock _initializeLock = Lock();
-  bool _initialized = false;
+  Future<void>? _initFuture;
   Map<String, ProtocolIdentifierFactory>? _protocolIdentifierFactories;
   DeviceConfiguration? _deviceConfiguration;
 
@@ -25,16 +23,18 @@ class RemoteToyKitWeb implements RemoteToyKit {
   final DeviceConfigVersion deviceConfigVersion;
   RemoteToyKitWeb({required this.deviceConfigVersion});
 
+  /// Lazily runs [_doInitialize] once. The `??=` operator caches the returned
+  /// [Future] on first call, so subsequent calls return the same future
+  /// without re-executing the body. This is safe in Dart's single-threaded
+  /// event loop where `??=` is evaluated synchronously before any `await`.
   @override
-  Future<void> initialize() => _initializeLock.synchronized<void>(() async {
-        if (_initialized) return;
-        // Load vendor-specific protocol identifier factories
-        _protocolIdentifierFactories = loadProtocolIdentifierFactories();
-        // Load device configurations (feature sets, specifiers, etc.)
-        _deviceConfiguration = await loadDeviceConfiguration(
-            deviceConfigVersion: deviceConfigVersion);
-        _initialized = true;
-      });
+  Future<void> initialize() => _initFuture ??= _doInitialize();
+
+  Future<void> _doInitialize() async {
+    _protocolIdentifierFactories = loadProtocolIdentifierFactories();
+    _deviceConfiguration =
+        await loadDeviceConfiguration(deviceConfigVersion: deviceConfigVersion);
+  }
 
   @override
   bool get isSearchInProgress => _isSearching;
