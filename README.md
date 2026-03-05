@@ -10,7 +10,34 @@ A Flutter/Dart SDK for discovering, connecting to, and controlling BLE remote-to
 - V3 and V4 device configuration specs
 - Output commands: vibrate, rotate, oscillate, constrict, position, LED, spray, temperature
 - Input commands: battery, RSSI, button, pressure sensor reads and subscriptions
-- Built-in protocol support for Lovense, Svakom, MonsterPub, and more
+- Built-in protocol support for Lovense, Svakom (V5 / Pulse), and MonsterPub
+
+## Supported Protocols & Devices
+
+### Communication Protocol
+
+Only **BLE (Bluetooth Low Energy)** is supported:
+
+- Mobile (iOS / Android) via `flutter_blue_plus`
+- Web via Web Bluetooth API (`flutter_web_bluetooth`)
+
+No WiFi, HTTP, MQTT, IR, or RF support.
+
+### Implemented Device Protocols
+
+Only 4 of the 120+ protocol entries in the bundled V4 config have Dart implementations. Devices from other config entries will be discovered but rejected as unsupported.
+
+| Protocol | Brand | Device |
+|---|---|---|
+| `lovense` | Lovense | Max, Nora, Edge, Ambi, Lush, Hush, Domi, Osci, Mission, Mission 2, Ferri, Diamo, Dolce, Osci 3, Gush, Gush 2, Hyphy, Calor, Flexer, Gemini, Gravity, Tenera, Ridge, Lapis, Vulse, Solace, Solace Pro, Sex Machine, Mini Sex Machine, Spinel |
+| `lovense` | Loveai | Dolp |
+| `monsterpub` | Sistalk | MonsterPub 2 Doctor Whale, MonsterPub Magic Kiss, MonsterPub 2 Mister Devil, MonsterPub Baby Youth Health, MonsterPub KiniCat, MonsterPub BeatHeart, MonsterPub 1P Mister Devil, MonsterPub Sweet, MonsterPub Amazing, MonsterPub Pop, MonsterHub Tornado |
+| `monsterpub` | Tracy's Dog | Surreal, Craybit Pro |
+| `svakom-v5` | Svakom | Chika, Mora Neo, Trysta Neo, Mini Emma Neo |
+| `svakom-pulse` | Svakom | Pulse Lite Neo, Pulse Union, Pulse Galaxie, Mimiki |
+| `svakom-pulse` | BeYourLover | Kyukyu |
+| `svakom-pulse` | Coleur Dor | VX045A, HX029A |
+| `svakom-pulse` | Momonii | Agatha |
 
 ## Installation
 
