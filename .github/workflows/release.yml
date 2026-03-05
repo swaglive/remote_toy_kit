@@ -83,8 +83,9 @@ jobs:
         echo "${EOF_MARKER}" >> "$GITHUB_OUTPUT"
 
     - name: Update CHANGELOG.md
+      env:
+        SECTION: ${{ steps.changelog.outputs.section }}
       run: |
-        SECTION="${{ steps.changelog.outputs.section }}"
         if [ -f CHANGELOG.md ]; then
           EXISTING=$(cat CHANGELOG.md)
           printf '%s\n\n%s\n' "$SECTION" "$EXISTING" > CHANGELOG.md
