@@ -1,3 +1,22 @@
+## v0.2.0
+
+### Documentation
+- document BLE dependency rationale and upgrade considerations (#12)
+- add supported protocols and devices section to README (#11)
+
+### Refactoring
+- remove collection dependency in favor of Dart SDK built-ins (#16)
+- remove synchronized dependency (#14)
+- remove rxdart dependency from SDK (#13)
+- move svakom protocols into dedicated svakom/ folder (#10)
+
+### Other Changes
+- chore: upgrade Kotlin version from 1.8.22 to 2.1.0 (#17)
+- ci: update pubspec.yaml version during release workflow (#15)
+- chore: update readme and remove ignore rules
+
+
+
 ## v0.1.0
 
 ### Bug Fixes
