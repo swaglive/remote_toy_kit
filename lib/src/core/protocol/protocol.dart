@@ -16,6 +16,7 @@ import 'lovense/lovense.dart';
 import 'monsterpub.dart';
 import 'svakom/svakom_v5.dart';
 import 'svakom/svakom_pulse.dart';
+import 'satisfyer.dart';
 
 abstract interface class ProtocolIdentifierFactory {
   /// The identifier of the protocol.
@@ -577,6 +578,7 @@ Map<String, ProtocolIdentifierFactory> loadProtocolIdentifierFactories() {
   addProtocol(LovenseIdentifierFactory()); // Lovense
   addProtocol(SvakomV5IdentifierFactory()); // Svakom V5
   addProtocol(SvakomPulseIdentifierFactory()); // Svakom Pulse
+  addProtocol(SatisfyerIdentifierFactory()); // Satisfyer
 
   return map;
 }
