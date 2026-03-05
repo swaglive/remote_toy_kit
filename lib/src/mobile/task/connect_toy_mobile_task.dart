@@ -8,7 +8,6 @@ library mobile.task.connect_toy_mobile_task;
 
 import 'dart:io';
 
-import 'package:collection/collection.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 import '../../configuration/configuration.dart';
@@ -68,7 +67,8 @@ class ConnectToyMobileTask {
           final charName = protoCharEntry.key;
           final charUuid = protoCharEntry.value;
           final characteristic = service.characteristics
-              .firstWhereOrNull((e) => e.uuid.str128 == charUuid);
+              .where((e) => e.uuid.str128 == charUuid)
+              .firstOrNull;
           if (characteristic != null) {
             endpoints[charName] = characteristic;
           }

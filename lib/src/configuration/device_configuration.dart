@@ -2,7 +2,6 @@
 /// BLE specifiers, and feature sets for all supported devices.
 library configuration.device_configuration;
 
-import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'attribute/protocol_attributes.dart';
 import 'communication/bluetooth_le_specifier.dart';
@@ -65,8 +64,8 @@ abstract class DeviceConfiguration with _$DeviceConfiguration {
     if (modelIdentifier != null) {
       // Try to find a matching configuration by identifier
       final ProtocolAttributes? attributes = definition.configurations
-          ?.firstWhereOrNull(
-              (e) => e.identifier?.contains(modelIdentifier) ?? false);
+          ?.where((e) => e.identifier?.contains(modelIdentifier) ?? false)
+          .firstOrNull;
       if (attributes != null) {
         if (attributes.features == null) {
           return attributes.copyWith(features: definition.defaults.features);

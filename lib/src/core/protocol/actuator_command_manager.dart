@@ -5,8 +5,6 @@
 /// generates stop commands for all supported outputs.
 library core.protocol.actuator_command_manager;
 
-import 'package:collection/collection.dart';
-
 import '../../configuration/configuration.dart';
 import '../exceptions.dart';
 import '../message/message.dart';
@@ -192,7 +190,7 @@ class ActuatorCommandManager {
     }
 
     for (final (index, cmd) in featureStatus.indexed) {
-      final command = commands.firstWhereOrNull((e) => e.$1 == index);
+      final command = commands.where((e) => e.$1 == index).firstOrNull;
       if (command != null) {
         final (_, cmdActuator, cmdValue) = command;
         // By this point, we should have already checked whether the feature takes the message type.
@@ -251,7 +249,7 @@ class ActuatorCommandManager {
       matchAll: matchAll,
     );
     // Sort by feature index and fill result slots accordingly
-    result.sortBy<num>((e) => e.$1);
+    result.sort((a, b) => a.$1.compareTo(b.$1));
     for (final (index, actuator, value) in result) {
       final finalIndex = idx[index];
       if (finalIndex != null) {
@@ -298,7 +296,7 @@ class ActuatorCommandManager {
       matchAll: matchAll,
     );
     // Sort by feature index and fill result slots accordingly
-    result.sortBy<num>((e) => e.$1);
+    result.sort((a, b) => a.$1.compareTo(b.$1));
     for (final (arrayIndex, (_, _, value)) in result.indexed) {
       finalResult[arrayIndex] = value;
     }
