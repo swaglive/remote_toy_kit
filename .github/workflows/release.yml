@@ -92,19 +92,27 @@ jobs:
           printf '%s\n' "$SECTION" > CHANGELOG.md
         fi
 
-    - name: Create Pull Request for CHANGELOG.md
+    - name: Update pubspec.yaml version
+      run: |
+        VERSION="${{ steps.tags.outputs.current_tag }}"
+        VERSION="${VERSION#v}"
+        sed -i "s/^version: .*/version: ${VERSION}/" pubspec.yaml
+
+    - name: Create Release Pull Request
       uses: peter-evans/create-pull-request@v7
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        commit-message: 'chore: update CHANGELOG.md for ${{ steps.tags.outputs.current_tag }}'
-        branch: changelog/${{ steps.tags.outputs.current_tag }}
+        commit-message: 'chore: release ${{ steps.tags.outputs.current_tag }}'
+        branch: release/${{ steps.tags.outputs.current_tag }}
         base: ${{ github.event.repository.default_branch }}
-        title: 'chore: update CHANGELOG.md for ${{ steps.tags.outputs.current_tag }}'
+        title: 'chore: release ${{ steps.tags.outputs.current_tag }}'
         body: |
-          Auto-generated changelog update for **${{ steps.tags.outputs.current_tag }}**.
+          Auto-generated release update for **${{ steps.tags.outputs.current_tag }}**.
+
+          Updates `pubspec.yaml` version and `CHANGELOG.md`.
 
           ${{ steps.changelog.outputs.section }}
-        labels: changelog
+        labels: release
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
