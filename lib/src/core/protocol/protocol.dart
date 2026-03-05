@@ -14,8 +14,8 @@ import '../hardware/hardware.dart';
 import '../message/message.dart';
 import 'lovense/lovense.dart';
 import 'monsterpub.dart';
-import 'svakom_v5.dart';
-import 'svakom_pulse.dart';
+import 'svakom/svakom_v5.dart';
+import 'svakom/svakom_pulse.dart';
 
 abstract interface class ProtocolIdentifierFactory {
   /// The identifier of the protocol.

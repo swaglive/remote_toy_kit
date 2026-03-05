@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:remote_toy_kit/src/core/hardware/hardware.dart';
-import 'package:remote_toy_kit/src/core/protocol/svakom_v5.dart';
+import 'package:remote_toy_kit/src/core/protocol/svakom/svakom_v5.dart';
 
 Uint8List _dataFromCmd(List<HardwareCmd> cmds) {
   final cmd = cmds.single as HardwareWriteCmd;
