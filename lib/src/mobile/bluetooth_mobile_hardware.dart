@@ -9,12 +9,12 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:rxdart/rxdart.dart';
 
 import '../core/exceptions.dart';
 import '../core/hardware/hardware.dart';
 import '../core/message/endpoint.dart';
 import '../util/logger.dart';
+import '../util/value_stream_controller.dart';
 
 /// [Hardware] backed by Flutter Blue Plus for native iOS/Android BLE.
 class BluetoothMobileHardware extends Hardware {
@@ -32,17 +32,17 @@ class BluetoothMobileHardware extends Hardware {
         _endpoints = endpoints,
         name = device.advName,
         id = device.remoteId.str,
-        _connected$ = BehaviorSubject.seeded(true);
+        _connected$ = ValueStreamController(true);
 
   final BluetoothDevice _device;
   final Map<Endpoint, BluetoothCharacteristic> _endpoints;
 
   final Map<Endpoint, StreamSubscription<List<int>>> _charNotifySubscriptions =
       {};
-  final PublishSubject<HardwareEvent> _events$ = PublishSubject();
+  final StreamController<HardwareEvent> _events$ = StreamController.broadcast();
 
   StreamSubscription<BluetoothConnectionState>? _connectionSubscription;
-  final BehaviorSubject<bool> _connected$;
+  final ValueStreamController<bool> _connected$;
 
   @override
   final String name;

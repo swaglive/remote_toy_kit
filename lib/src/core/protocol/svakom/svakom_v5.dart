@@ -4,9 +4,8 @@
 /// Contributor: Ciao Chiang
 library packages.remote_toy_kit.protocol.svakom.svakom_v5;
 
+import 'dart:async';
 import 'dart:typed_data';
-
-import 'package:rxdart/rxdart.dart';
 
 import '../../../configuration/configuration.dart';
 import '../../../util/logger.dart';
@@ -60,7 +59,8 @@ class SvakomV5Initializer implements ProtocolInitializer {
 class SvakomV5 extends ProtocolHandler {
   SvakomV5();
 
-  final PublishSubject<RemoteToyServerMessage> _events$ = PublishSubject();
+  final StreamController<RemoteToyServerMessage> _events$ =
+      StreamController.broadcast();
   final List<int> _lastVibeSpeeds = List<int>.filled(2, 0);
 
   @override

@@ -10,7 +10,6 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:rxdart/rxdart.dart';
 
 import '../../configuration/configuration.dart';
 import '../../core/exceptions.dart';
@@ -91,7 +90,8 @@ class SearchToyMobileTask {
         break;
     }
 
-    final PublishSubject<MobileScanResult> onScanned$ = PublishSubject();
+    final StreamController<MobileScanResult> onScanned$ =
+        StreamController.broadcast();
     // Track devices already emitted or known to be unsupported to avoid duplicates
     final Map<DeviceIdentifier, MobileScanResult> notified = {};
     final Set<DeviceIdentifier> notSupportedDevices = {};

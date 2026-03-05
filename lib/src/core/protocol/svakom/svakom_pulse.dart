@@ -4,9 +4,8 @@
 /// Contributor: Ciao Chiang
 library packages.remote_toy_kit.protocol.svakom.svakom_pulse;
 
+import 'dart:async';
 import 'dart:typed_data';
-
-import 'package:rxdart/rxdart.dart';
 
 import '../../../configuration/configuration.dart';
 import '../../../util/logger.dart';
@@ -60,7 +59,8 @@ class SvakomPulseInitializer implements ProtocolInitializer {
 class SvakomPulse extends ProtocolHandler {
   SvakomPulse();
 
-  final PublishSubject<RemoteToyServerMessage> _events$ = PublishSubject();
+  final StreamController<RemoteToyServerMessage> _events$ =
+      StreamController.broadcast();
 
   @override
   Stream<RemoteToyServerMessage> get events$ => _events$.stream;

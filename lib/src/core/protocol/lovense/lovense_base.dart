@@ -1,7 +1,6 @@
 /// Base class for Lovense protocol handlers implementing common functionality.
 library core.protocol.lovense.lovense_base;
 
-import 'package:rxdart/rxdart.dart';
 import 'dart:typed_data';
 import 'dart:convert';
 import 'dart:async';
@@ -16,7 +15,8 @@ class LovenseBase extends ProtocolHandler {
   LovenseBase();
 
   /// Stream of server messages
-  final PublishSubject<RemoteToyServerMessage> _events$ = PublishSubject();
+  final StreamController<RemoteToyServerMessage> _events$ =
+      StreamController.broadcast();
 
   @override
   Stream<RemoteToyServerMessage> get events$ => _events$.stream;

@@ -8,8 +8,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:rxdart/rxdart.dart';
-
 import '../../configuration/configuration.dart';
 import '../../util/logger.dart';
 import '../hardware/hardware.dart';
@@ -239,7 +237,8 @@ class MonsterPub extends ProtocolHandler {
   final Endpoint _tx;
   // Cached speeds for multi-actuator command construction.
   final List<int> _speeds;
-  final PublishSubject<RemoteToyServerMessage> _events$ = PublishSubject();
+  final StreamController<RemoteToyServerMessage> _events$ =
+      StreamController.broadcast();
 
   @override
   Stream<RemoteToyServerMessage> get events$ => _events$.stream;

@@ -383,7 +383,7 @@ Future<void> readBattery(RemoteToyDevice device) async {
 
 ### Throttled slider control
 
-Use `rxdart` to throttle slider value changes so the device isn't flooded with commands:
+Use `rxdart` (used in the example app, not the SDK itself) to throttle slider value changes so the device isn't flooded with commands:
 
 ```dart
 class VibrateSlider extends StatefulWidget {
@@ -600,7 +600,6 @@ The workflow will:
 |---|---|
 | `flutter_blue_plus` `^1.34.5` | BLE on iOS/Android |
 | `flutter_web_bluetooth` `^1.0.0` | BLE on web |
-| `rxdart` | Reactive stream utilities |
 | `freezed_annotation` / `freezed` | Immutable data classes + unions |
 | `json_annotation` / `json_serializable` | JSON serialization |
 | `fimber` | Logging |
