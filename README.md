@@ -598,13 +598,42 @@ The workflow will:
 
 | Package | Purpose |
 |---|---|
-| `flutter_blue_plus` | BLE on iOS/Android |
-| `flutter_web_bluetooth` | BLE on web |
+| `flutter_blue_plus` `^1.34.5` | BLE on iOS/Android |
+| `flutter_web_bluetooth` `^1.0.0` | BLE on web |
 | `rxdart` | Reactive stream utilities |
 | `freezed_annotation` / `freezed` | Immutable data classes + unions |
 | `json_annotation` / `json_serializable` | JSON serialization |
 | `fimber` | Logging |
 | `synchronized` | Mutex / lock utilities |
+
+### Why two BLE packages?
+
+`flutter_blue_plus` at v1.34.5 does **not** support the web platform — it only covers iOS and Android. Web BLE support was added later in v1.35.0 via the federated `flutter_blue_plus_web` plugin. Because of this, the SDK uses `flutter_web_bluetooth` (MIT license) as a separate web-specific BLE implementation.
+
+The codebase is split accordingly:
+
+- `lib/src/mobile/` — uses `flutter_blue_plus` types (`BluetoothDevice`, `BluetoothCharacteristic`, etc.)
+- `lib/src/web/` — uses `flutter_web_bluetooth` types
+
+Both sides implement the shared `Hardware` abstraction, so the rest of the SDK is platform-agnostic.
+
+### Why not upgrade flutter_blue_plus?
+
+**v1.35.0 – v1.36.8 (BSD 3-Clause, free):**
+
+v1.35.0 introduced the federated plugin architecture (adding web, Linux, and platform interface support). While v1.36.8 is the latest free version and includes web support, the v1.35.x–v1.36.x series introduced a cascade of regressions during the restructuring:
+
+- v1.35.0: `connect`, `disconnect`, `createBond`, `setNotifyValue`, and other core operations were broken (fixed in v1.35.1)
+- v1.35.6: `instanceId` bug causing "characteristic not found" errors; `onValueReceived` stopped emitting after reconnection; `lastValue` broken (fixed across v1.36.0–v1.36.2)
+- v1.36.2: `isNotifying` broken; Android compile errors (fixed in v1.36.8)
+- Open issue: iOS `discoverServices` can time out (15s) on rapid disconnect/reconnect ([#1303](https://github.com/chipweinberger/flutter_blue_plus/issues/1303), [#1313](https://github.com/chipweinberger/flutter_blue_plus/issues/1313))
+- Reported regression: iOS scanning may return incomplete service data (16 bytes instead of 23) on v1.35.x ([#1151](https://github.com/chipweinberger/flutter_blue_plus/issues/1151))
+
+Since v1.34.5 is stable and the current two-package setup works reliably, upgrading carries risk for limited benefit.
+
+**v2.0.0+ (commercial license):**
+
+Starting from v2.0.0, `flutter_blue_plus` switched to the **FBP License** — for-profit organizations with 15+ employees must purchase a [Commercial License](https://jamcorder.myshopify.com/products/flutterblueplus-commercial-license). This makes v2.x unsuitable as a drop-in upgrade for commercial projects without license evaluation.
 
 ## License
 
