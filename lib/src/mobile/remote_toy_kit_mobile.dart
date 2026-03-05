@@ -5,7 +5,6 @@
 /// duplicate loading of configs.
 library mobile.remote_toy_kit_mobile;
 
-import 'package:rxdart/rxdart.dart';
 import 'package:synchronized/synchronized.dart';
 
 import '../../remote_toy_kit.dart';
@@ -65,22 +64,30 @@ class RemoteToyKitMobile implements RemoteToyKit {
       config: deviceConfiguration,
       protocols: protocolIdentifierFactories,
     );
-    return task().doOnDone(() {
+    return _searchAndMap(task, deviceConfiguration);
+  }
+
+  Stream<RemoteToySearchedDevice> _searchAndMap(
+    SearchToyMobileTask task,
+    DeviceConfiguration deviceConfiguration,
+  ) async* {
+    try {
+      await for (final result in task()) {
+        final connector = RemoteToyDeviceMobileConnector(
+          deviceConfiguration: deviceConfiguration,
+          device: result.device,
+          specifier: result.specifier,
+          protocolIdentifier: result.protocolIdentifier,
+          isSpecV4: deviceConfigVersion == DeviceConfigVersion.v4,
+        );
+        yield RemoteToySearchedDevice(
+          name: result.device.advName,
+          address: result.device.remoteId.str,
+          connector: connector,
+        );
+      }
+    } finally {
       _isSearching = false;
-    }).map((result) {
-      // Wrap each discovered device with a mobile-specific connector
-      final connector = RemoteToyDeviceMobileConnector(
-        deviceConfiguration: deviceConfiguration,
-        device: result.device,
-        specifier: result.specifier,
-        protocolIdentifier: result.protocolIdentifier,
-        isSpecV4: deviceConfigVersion == DeviceConfigVersion.v4,
-      );
-      return RemoteToySearchedDevice(
-        name: result.device.advName,
-        address: result.device.remoteId.str,
-        connector: connector,
-      );
-    });
+    }
   }
 }

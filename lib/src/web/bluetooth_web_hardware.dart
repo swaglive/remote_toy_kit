@@ -9,12 +9,12 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter_web_bluetooth/flutter_web_bluetooth.dart';
-import 'package:rxdart/rxdart.dart';
 
 import '../core/exceptions.dart';
 import '../core/hardware/hardware.dart';
 import '../core/message/message.dart';
 import '../util/logger.dart';
+import '../util/value_stream_controller.dart';
 
 /// [Hardware] backed by the browser's Web Bluetooth API.
 class BluetoothWebHardware extends Hardware {
@@ -31,16 +31,16 @@ class BluetoothWebHardware extends Hardware {
         _endpoints = endpoints,
         name = device.name ?? '',
         id = device.id,
-        _connected$ = BehaviorSubject.seeded(true);
+        _connected$ = ValueStreamController(true);
 
   final BluetoothDevice _device;
   final Map<Endpoint, BluetoothCharacteristic> _endpoints;
 
   final Map<Endpoint, StreamSubscription> _charNotifySubscriptions = {};
 
-  final PublishSubject<HardwareEvent> _events$ = PublishSubject();
+  final StreamController<HardwareEvent> _events$ = StreamController.broadcast();
 
-  final BehaviorSubject<bool> _connected$;
+  final ValueStreamController<bool> _connected$;
   StreamSubscription<bool>? _connectedSubscription;
 
   @override
@@ -53,7 +53,7 @@ class BluetoothWebHardware extends Hardware {
   bool get connected => _connected$.value;
 
   @override
-  Stream<bool> get connected$ => _connected$;
+  Stream<bool> get connected$ => _connected$.stream;
 
   @override
   List<Endpoint> get endpoints => _endpoints.keys.toList();

@@ -10,7 +10,6 @@ library remote_toy_device;
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:rxdart/rxdart.dart';
 
 import '../remote_toy_kit.dart';
 import 'core/hardware/hardware.dart';
@@ -62,7 +61,8 @@ class RemoteToyDevice {
   /// Manages actuator command state and value conversions.
   final ActuatorCommandManager _actuatorCommandManager;
 
-  final PublishSubject<RemoteToyServerMessage> _events$ = PublishSubject();
+  final StreamController<RemoteToyServerMessage> _events$ =
+      StreamController.broadcast();
 
   StreamSubscription<HardwareEvent>? _hardwareEventSubscription;
   StreamSubscription<RemoteToyServerMessage>? _protocolHandlerEventSubscription;
@@ -93,9 +93,8 @@ class RemoteToyDevice {
 
   void _listen() {
     // Forward events emitted by the protocol handler
-    _protocolHandlerEventSubscription = _protocolHandler.events$
-        .whereType<RemoteToyServerMessage>()
-        .listen((event) {
+    _protocolHandlerEventSubscription =
+        _protocolHandler.events$.listen((event) {
       _events$.add(event);
     });
   }
