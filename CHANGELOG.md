@@ -1,3 +1,13 @@
+## v0.2.1
+
+### Bug Fixes
+- use env mapping for changelog section to avoid shell injection (#20)
+
+### Other Changes
+- Revert "chore: upgrade Kotlin version from 1.8.22 to 2.1.0 (#17)" (#19)
+
+
+
 ## v0.2.0
 
 ### Documentation
