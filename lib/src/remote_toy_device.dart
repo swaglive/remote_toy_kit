@@ -8,8 +8,7 @@
 library remote_toy_device;
 
 import 'dart:async';
-
-import 'package:collection/collection.dart';
+import 'dart:collection';
 
 import '../remote_toy_kit.dart';
 import 'core/hardware/hardware.dart';

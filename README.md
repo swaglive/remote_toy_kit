@@ -361,7 +361,8 @@ Query the battery sensor for a connected device:
 ```dart
 Future<void> readBattery(RemoteToyDevice device) async {
   final batteryFeature = device.features
-      .firstWhereOrNull((f) => f.featureType == FeatureType.battery);
+      .where((f) => f.featureType == FeatureType.battery)
+      .firstOrNull;
   if (batteryFeature == null) return;
 
   // V4
@@ -603,7 +604,6 @@ The workflow will:
 | `freezed_annotation` / `freezed` | Immutable data classes + unions |
 | `json_annotation` / `json_serializable` | JSON serialization |
 | `fimber` | Logging |
-| `synchronized` | Mutex / lock utilities |
 
 ### Why two BLE packages?
 
