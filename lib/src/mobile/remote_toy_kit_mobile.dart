@@ -1,11 +1,9 @@
 /// Mobile (iOS/Android) implementation of the [RemoteToyKit] SDK.
 ///
 /// Uses Flutter Blue Plus to scan for and connect to BLE remote-toy
-/// devices. Initialization is guarded by a [Lock] to prevent
+/// devices. Initialization uses future-caching to prevent
 /// duplicate loading of configs.
 library mobile.remote_toy_kit_mobile;
-
-import 'package:synchronized/synchronized.dart';
 
 import '../../remote_toy_kit.dart';
 import '../core/protocol/protocol.dart';
@@ -14,8 +12,7 @@ import 'task/search_toy_mobile_task.dart';
 
 /// Native mobile [RemoteToyKit] implementation backed by Flutter Blue Plus.
 class RemoteToyKitMobile implements RemoteToyKit {
-  final Lock _initializedLock = Lock();
-  bool _initialized = false;
+  Future<void>? _initFuture;
   Map<String, ProtocolIdentifierFactory>? _protocolIdentifierFactories;
   DeviceConfiguration? _deviceConfiguration;
 
@@ -24,14 +21,18 @@ class RemoteToyKitMobile implements RemoteToyKit {
   final DeviceConfigVersion deviceConfigVersion;
   RemoteToyKitMobile({required this.deviceConfigVersion});
 
+  /// Lazily runs [_doInitialize] once. The `??=` operator caches the returned
+  /// [Future] on first call, so subsequent calls return the same future
+  /// without re-executing the body. This is safe in Dart's single-threaded
+  /// event loop where `??=` is evaluated synchronously before any `await`.
   @override
-  Future<void> initialize() => _initializedLock.synchronized(() async {
-        if (_initialized) return;
-        _protocolIdentifierFactories = loadProtocolIdentifierFactories();
-        _deviceConfiguration = await loadDeviceConfiguration(
-            deviceConfigVersion: deviceConfigVersion);
-        _initialized = true;
-      });
+  Future<void> initialize() => _initFuture ??= _doInitialize();
+
+  Future<void> _doInitialize() async {
+    _protocolIdentifierFactories = loadProtocolIdentifierFactories();
+    _deviceConfiguration =
+        await loadDeviceConfiguration(deviceConfigVersion: deviceConfigVersion);
+  }
 
   @override
   bool get isSearchInProgress => _isSearching;
