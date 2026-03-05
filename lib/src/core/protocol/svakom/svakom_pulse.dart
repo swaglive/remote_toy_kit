@@ -2,17 +2,17 @@
 ///
 /// Reference: Buttplug Rust implementation (buttplug_server/src/device/protocol_impl/svakom/svakom_pulse.rs)
 /// Contributor: Ciao Chiang
-library packages.remote_toy_kit.protocol.svakom_pulse;
+library packages.remote_toy_kit.protocol.svakom.svakom_pulse;
 
 import 'dart:typed_data';
 
 import 'package:rxdart/rxdart.dart';
 
-import '../../configuration/configuration.dart';
-import '../../util/logger.dart';
-import '../hardware/hardware.dart';
-import '../message/message.dart';
-import 'protocol.dart';
+import '../../../configuration/configuration.dart';
+import '../../../util/logger.dart';
+import '../../hardware/hardware.dart';
+import '../../message/message.dart';
+import '../protocol.dart';
 
 class SvakomPulseIdentifierFactory implements ProtocolIdentifierFactory {
   @override
