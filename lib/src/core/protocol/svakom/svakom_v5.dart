@@ -44,11 +44,11 @@ class SvakomV5Initializer implements ProtocolInitializer {
   const SvakomV5Initializer();
 
   @override
-  ProtocolHandler initialize({
+  Future<ProtocolHandler> initialize({
     required Hardware hardware,
     required ProtocolAttributes protocolAttributes,
     required bool isSpecV4,
-  }) {
+  }) async {
     if (!isSpecV4) {
       logger.w('Svakom V5 expects spec v4 device configuration');
     }

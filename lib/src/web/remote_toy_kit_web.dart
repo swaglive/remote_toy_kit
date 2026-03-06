@@ -80,6 +80,7 @@ class RemoteToyKitWeb implements RemoteToyKit {
         device: device,
         specifier: specifier,
         protocolIdentifier: protocolIdentifier,
+        protocols: protocolIdentifierFactories,
         isSpecV4: deviceConfigVersion == DeviceConfigVersion.v4,
       );
       _isSearching = false;

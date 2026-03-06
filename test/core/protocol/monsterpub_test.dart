@@ -157,7 +157,7 @@ void main() {
         );
 
         const initializer = MonsterPubInitializer();
-        initializer.initialize(
+        await initializer.initialize(
           hardware: hardware,
           protocolAttributes: _buildAttributes(outputCount: 1),
           isSpecV4: true,

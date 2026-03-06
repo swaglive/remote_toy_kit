@@ -109,7 +109,7 @@ class ConnectToyMobileTask {
     }
 
     // Initialize the protocol handler with the resolved attributes
-    final ProtocolHandler protocolHandler = initializer.initialize(
+    final ProtocolHandler protocolHandler = await initializer.initialize(
       hardware: hardware,
       protocolAttributes: protocolAttributes,
       isSpecV4: isSpecV4,

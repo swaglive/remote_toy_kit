@@ -146,7 +146,7 @@ void main() {
         );
 
         const initializer = SatisfyerInitializer();
-        initializer.initialize(
+        await initializer.initialize(
           hardware: hardware,
           protocolAttributes: _buildAttributes(outputCount: 2),
           isSpecV4: true,
@@ -169,13 +169,12 @@ void main() {
         );
 
         const initializer = SatisfyerInitializer();
-        initializer.initialize(
+        await initializer.initialize(
           hardware: hardware,
           protocolAttributes: _buildAttributes(outputCount: 1),
           isSpecV4: true,
         );
 
-        await Future<void>.delayed(const Duration(milliseconds: 50));
         expect(wrote, isFalse);
       });
     });

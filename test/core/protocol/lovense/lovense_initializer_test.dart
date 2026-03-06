@@ -30,11 +30,11 @@ void main() {
       hardware = TestHardware(name: 'test-device', connected: false);
     });
 
-    test('returns spec v3 handler when not spec v4', () {
+    test('returns spec v3 handler when not spec v4', () async {
       final attributes = _attributes([_feature(FeatureType.vibrate)]);
       const initializer = LovenseInitializer(deviceType: 'A');
 
-      final handler = initializer.initialize(
+      final handler = await initializer.initialize(
         hardware: hardware,
         protocolAttributes: attributes,
         isSpecV4: false,
@@ -45,11 +45,11 @@ void main() {
       expect(spec.deviceType, 'A');
     });
 
-    test('returns stroker for H device type', () {
+    test('returns stroker for H device type', () async {
       final attributes = _attributes([]);
       const initializer = LovenseInitializer(deviceType: 'H');
 
-      final handler = initializer.initialize(
+      final handler = await initializer.initialize(
         hardware: hardware,
         protocolAttributes: attributes,
         isSpecV4: true,
@@ -58,11 +58,11 @@ void main() {
       expect(handler, isA<LovenseStroker>());
     });
 
-    test('returns single actuator for one output', () {
+    test('returns single actuator for one output', () async {
       final attributes = _attributes([_feature(FeatureType.vibrate)]);
       const initializer = LovenseInitializer(deviceType: 'X');
 
-      final handler = initializer.initialize(
+      final handler = await initializer.initialize(
         hardware: hardware,
         protocolAttributes: attributes,
         isSpecV4: true,
@@ -71,13 +71,13 @@ void main() {
       expect(handler, isA<LovenseSingleActuator>());
     });
 
-    test('returns Lovense Max when vibrate + constrict', () {
+    test('returns Lovense Max when vibrate + constrict', () async {
       final attributes = _attributes(
         [_feature(FeatureType.vibrate), _feature(FeatureType.constrict)],
       );
       const initializer = LovenseInitializer(deviceType: 'MX');
 
-      final handler = initializer.initialize(
+      final handler = await initializer.initialize(
         hardware: hardware,
         protocolAttributes: attributes,
         isSpecV4: true,
@@ -86,13 +86,13 @@ void main() {
       expect(handler, isA<LovenseMax>());
     });
 
-    test('returns rotate vibrator when vibrate + rotate', () {
+    test('returns rotate vibrator when vibrate + rotate', () async {
       final attributes = _attributes(
         [_feature(FeatureType.vibrate), _feature(FeatureType.rotate)],
       );
       const initializer = LovenseInitializer(deviceType: 'RV');
 
-      final handler = initializer.initialize(
+      final handler = await initializer.initialize(
         hardware: hardware,
         protocolAttributes: attributes,
         isSpecV4: true,
@@ -101,7 +101,7 @@ void main() {
       expect(handler, isA<LovenseRotateVibrator>());
     });
 
-    test('returns multi actuator when useMply is true', () {
+    test('returns multi actuator when useMply is true', () async {
       final attributes = _attributes(
         [
           _feature(FeatureType.vibrate),
@@ -111,7 +111,7 @@ void main() {
       );
       const initializer = LovenseInitializer(deviceType: 'A');
 
-      final handler = initializer.initialize(
+      final handler = await initializer.initialize(
         hardware: hardware,
         protocolAttributes: attributes,
         isSpecV4: true,
@@ -120,7 +120,7 @@ void main() {
       expect(handler, isA<LovenseMultiActuator>());
     });
 
-    test('returns dual actuator by default', () {
+    test('returns dual actuator by default', () async {
       final attributes = _attributes(
         [
           _feature(FeatureType.vibrate),
@@ -129,7 +129,7 @@ void main() {
       );
       const initializer = LovenseInitializer(deviceType: 'A');
 
-      final handler = initializer.initialize(
+      final handler = await initializer.initialize(
         hardware: hardware,
         protocolAttributes: attributes,
         isSpecV4: true,

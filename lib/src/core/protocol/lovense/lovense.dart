@@ -146,11 +146,11 @@ class LovenseInitializer implements ProtocolInitializer {
   final String deviceType;
 
   @override
-  ProtocolHandler initialize({
+  Future<ProtocolHandler> initialize({
     required Hardware hardware,
     required ProtocolAttributes protocolAttributes,
     required bool isSpecV4,
-  }) {
+  }) async {
     final vibratorCount = (protocolAttributes.features ?? [])
         .where((e) => [FeatureType.vibrate, FeatureType.oscillate]
             .contains(e.featureType))

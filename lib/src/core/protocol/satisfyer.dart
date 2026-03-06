@@ -72,17 +72,18 @@ class SatisfyerInitializer implements ProtocolInitializer {
   const SatisfyerInitializer();
 
   @override
-  ProtocolHandler initialize({
+  Future<ProtocolHandler> initialize({
     required Hardware hardware,
     required ProtocolAttributes protocolAttributes,
     required bool isSpecV4,
-  }) {
+  }) async {
     if (!isSpecV4) {
       logger.w('Satisfyer expects spec v4 device configuration');
     }
 
-    // Send an enable byte to the device if the command endpoint exists.
-    _enable(hardware);
+    // Send an enable byte and wait for acknowledgment so the GATT queue is
+    // clear before any control commands are sent.
+    await _enable(hardware);
 
     // Count how many output features exist so we know how many actuator slots to encode.
     final int outputCount = (protocolAttributes.features ?? [])
@@ -92,24 +93,20 @@ class SatisfyerInitializer implements ProtocolInitializer {
     return Satisfyer(outputCount: outputCount);
   }
 
-  /// Writes a single enable byte to the command endpoint.
-  /// This is done asynchronously so initialization can stay synchronous.
-  void _enable(Hardware hardware) {
+  Future<void> _enable(Hardware hardware) async {
     if (!hardware.endpoints.contains(Endpoint.command)) return;
 
-    () async {
-      try {
-        await hardware.writeValue(
-          cmd: HardwareWriteCmd(
-            endpoint: Endpoint.command,
-            data: Uint8List.fromList(const [0x01]),
-            writeWithResponse: true,
-          ),
-        );
-      } catch (e) {
-        logger.w('Satisfyer enable failed', ex: e);
-      }
-    }();
+    try {
+      await hardware.writeValue(
+        cmd: HardwareWriteCmd(
+          endpoint: Endpoint.command,
+          data: Uint8List.fromList(const [0x01]),
+          writeWithResponse: true,
+        ),
+      );
+    } catch (e) {
+      logger.w('Satisfyer enable failed', ex: e);
+    }
   }
 }
 

@@ -47,8 +47,15 @@ class SearchToyWebTask {
     final Map<ProtocolName, BluetoothLESpecifier> specifiers =
         config.specifiers;
 
-    // Add filters for each specifier's names and services
-    for (final specifier in specifiers.values) {
+    // Reverse mapping: tracks which protocols added manufacturer-data-only
+    // filters so we can fall back to them when name matching fails.
+    final List<(ProtocolName, BluetoothLESpecifier)> manufacturerDataProtocols =
+        [];
+
+    for (final entry in specifiers.entries) {
+      final ProtocolName protocolName = entry.key;
+      final BluetoothLESpecifier specifier = entry.value;
+
       for (final String name in specifier.names) {
         final RequestFilterBuilder filter;
         // Wildcard names (e.g. "LVS-*") are treated as name prefixes
@@ -60,6 +67,23 @@ class SearchToyWebTask {
         }
         filters.add(filter);
       }
+
+      // Add manufacturer data filters so devices that don't prominently
+      // advertise a name can still appear in the browser picker.
+      for (final mfgData in specifier.manufacturerData) {
+        filters.add(RequestFilterBuilder(
+          manufacturerData: [
+            ManufacturerDataFilterBuilder(
+              companyIdentifier: mfgData.company,
+              dataPrefix: mfgData.data,
+            ),
+          ],
+        ));
+      }
+      if (specifier.manufacturerData.isNotEmpty) {
+        manufacturerDataProtocols.add((protocolName, specifier));
+      }
+
       for (final String service in specifier.services.keys) {
         services.add(service);
       }
@@ -74,10 +98,12 @@ class SearchToyWebTask {
       final BluetoothDevice device =
           await FlutterWebBluetooth.instance.requestDevice(options);
 
-      // Match the selected device to a known specifier using
-      // BluetoothLESpecifier equality (name-based matching)
+      final String deviceName = device.name ?? '';
+
+      // First, try name-based matching (works when the device advertises a
+      // recognisable name).
       final searchedDeviceSpecifier = BluetoothLESpecifier.fromDevice(
-        name: device.name ?? '',
+        name: deviceName,
         manufactureData: {},
         advertisedServices: [],
       );
@@ -92,6 +118,26 @@ class SearchToyWebTask {
           targetSpecifier = specifier;
           targetProtocolName = protocolName;
           break;
+        }
+      }
+
+      // Fallback: if name matching failed, the device was likely discovered
+      // via a manufacturer data filter. Since the browser already narrowed the
+      // list to our filters, pick the first protocol whose manufacturer data
+      // filter could have matched.
+      if (targetProtocolIdentifierFactory == null) {
+        for (final (protocolName, specifier) in manufacturerDataProtocols) {
+          final factory = protocols[protocolName];
+          if (factory != null) {
+            targetProtocolIdentifierFactory = factory;
+            targetSpecifier = specifier;
+            targetProtocolName = protocolName;
+            logger.i(
+              'Web search: name matching failed for "$deviceName", '
+              'falling back to manufacturer-data protocol "$protocolName"',
+            );
+            break;
+          }
         }
       }
 

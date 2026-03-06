@@ -28,6 +28,7 @@ class ConnectToyWebTask {
     required this.device,
     required this.specifier,
     required this.protocolIdentifier,
+    required this.protocols,
     required this.isSpecV4,
   });
 
@@ -35,6 +36,7 @@ class ConnectToyWebTask {
   final BluetoothDevice device;
   final BluetoothLESpecifier specifier;
   final ProtocolIdentifier protocolIdentifier;
+  final Map<String, ProtocolIdentifierFactory> protocols;
   final bool isSpecV4;
 
   Future<RemoteToyDevice> call() async {
@@ -56,10 +58,46 @@ class ConnectToyWebTask {
       );
     }
 
-    // Discover GATT services and map each endpoint to its characteristic
+    // Try the primary specifier/protocol first
+    final primaryResult =
+        await _tryIdentify(gatt, specifier, protocolIdentifier);
+    if (primaryResult != null) return primaryResult;
+
+    // Fallback: try all other known specifiers in case the search task
+    // picked the wrong protocol (e.g. manufacturer-data ambiguity).
+    logger.i(
+      'Primary protocol identification failed for ${device.name}, '
+      'trying alternative protocols',
+    );
+    for (final entry in deviceConfiguration.specifiers.entries) {
+      final candidateName = entry.key;
+      final candidateSpecifier = entry.value;
+      if (candidateSpecifier == specifier) continue;
+      final factory = protocols[candidateName];
+      if (factory == null) continue;
+
+      final result =
+          await _tryIdentify(gatt, candidateSpecifier, factory.create());
+      if (result != null) return result;
+    }
+
+    throw RemoteToyDeviceException(
+      code: RemoteToyDeviceException.codeDeviceNotSupported,
+      message:
+          'Cannot find corresponding Feature Set (${device.name}), no protocol matched',
+    );
+  }
+
+  /// Attempts GATT service discovery with [candidateSpecifier] and protocol
+  /// identification with [candidateIdentifier]. Returns a [RemoteToyDevice]
+  /// on success, or `null` if this candidate doesn't match the device.
+  Future<RemoteToyDevice?> _tryIdentify(
+    NativeBluetoothRemoteGATTServer gatt,
+    BluetoothLESpecifier candidateSpecifier,
+    ProtocolIdentifier candidateIdentifier,
+  ) async {
     final Map<Endpoint, BluetoothCharacteristic> characteristics = {};
-    for (final serviceEntry in specifier.services.entries) {
-      // Get BLE GATT service
+    for (final serviceEntry in candidateSpecifier.services.entries) {
       final serviceUuid = serviceEntry.key;
       final BluetoothService gattService;
       try {
@@ -72,7 +110,6 @@ class ConnectToyWebTask {
       }
 
       for (final endpointEntry in serviceEntry.value.entries) {
-        // Get BLE GATT Characteristic
         final characteristicEndpoint = endpointEntry.key;
         final characteristicUuid = endpointEntry.value;
         final BluetoothCharacteristic characteristic;
@@ -88,40 +125,32 @@ class ConnectToyWebTask {
       }
     }
 
+    if (characteristics.isEmpty) return null;
+
     logger.d('RemoteToyDevice BLE services discovered (${device.name})');
 
-    // Build the hardware abstraction over the discovered characteristics
     final Hardware hardware = BluetoothWebHardware.build(
       device: device,
       endpoints: characteristics,
     );
 
-    // Identify the device model and obtain a protocol initializer
     final (
       :ProtocolName protocolName,
       :String? modelIdentifier,
       :ProtocolInitializer initializer
-    ) = await protocolIdentifier.identify(hardware: hardware);
+    ) = await candidateIdentifier.identify(hardware: hardware);
     logger.d(
         'Protocol identified (${device.name}) name: $protocolName, model: $modelIdentifier');
 
-    // Look up the device's feature set from configuration
     final ProtocolAttributes? protocolAttributes =
         deviceConfiguration.findProtocolAttributes(
       protocolName: protocolName,
       modelIdentifier: modelIdentifier,
     );
 
-    if (protocolAttributes == null) {
-      throw RemoteToyDeviceException(
-        code: RemoteToyDeviceException.codeDeviceNotSupported,
-        message:
-            'Cannot find corresponding Feature Set (${device.name}), protocol: $protocolName, model: $modelIdentifier',
-      );
-    }
+    if (protocolAttributes == null) return null;
 
-    // Initialize the protocol handler with the resolved attributes
-    final ProtocolHandler protocolHandler = initializer.initialize(
+    final ProtocolHandler protocolHandler = await initializer.initialize(
       hardware: hardware,
       protocolAttributes: protocolAttributes,
       isSpecV4: isSpecV4,
