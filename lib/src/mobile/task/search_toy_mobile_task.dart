@@ -21,6 +21,7 @@ typedef MobileScanResult = ({
   BluetoothDevice device,
   BluetoothLESpecifier specifier,
   ProtocolIdentifier protocolIdentifier,
+  ProtocolName protocolName,
 });
 
 /// Scans for remote-toy devices on iOS/Android via Flutter Blue Plus.
@@ -131,18 +132,21 @@ class SearchToyMobileTask {
                 config.specifiers;
             ProtocolIdentifierFactory? targetProtocolIdentifierFactory;
             BluetoothLESpecifier? targetSpecifier;
+            ProtocolName? targetProtocolName;
             for (final entry in specifiers.entries) {
               final ProtocolName protocolName = entry.key;
               final BluetoothLESpecifier specifier = entry.value;
               if (specifier == searchedDeviceSpecifier) {
                 targetProtocolIdentifierFactory = protocols[protocolName];
                 targetSpecifier = specifier;
+                targetProtocolName = protocolName;
                 break;
               }
             }
 
             if (targetProtocolIdentifierFactory == null ||
-                targetSpecifier == null) {
+                targetSpecifier == null ||
+                targetProtocolName == null) {
               notSupportedDevices.add(id);
               continue;
             }
@@ -151,6 +155,7 @@ class SearchToyMobileTask {
               device: device,
               specifier: targetSpecifier,
               protocolIdentifier: targetProtocolIdentifierFactory.create(),
+              protocolName: targetProtocolName,
             );
 
             if (!onScanned$.isClosed) {

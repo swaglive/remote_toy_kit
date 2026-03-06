@@ -30,7 +30,8 @@ class SearchToyWebTask {
       ({
         BluetoothDevice device,
         BluetoothLESpecifier specifier,
-        ProtocolIdentifier protocolIdentifier
+        ProtocolIdentifier protocolIdentifier,
+        ProtocolName protocolName,
       })> call() async {
     if (!FlutterWebBluetooth.instance.isBluetoothApiSupported) {
       throw RemoteToyBluetoothException(
@@ -82,18 +83,22 @@ class SearchToyWebTask {
       );
       ProtocolIdentifierFactory? targetProtocolIdentifierFactory;
       BluetoothLESpecifier? targetSpecifier;
+      ProtocolName? targetProtocolName;
       for (final entry in specifiers.entries) {
         final ProtocolName protocolName = entry.key;
         final BluetoothLESpecifier specifier = entry.value;
         if (specifier == searchedDeviceSpecifier) {
           targetProtocolIdentifierFactory = protocols[protocolName];
           targetSpecifier = specifier;
+          targetProtocolName = protocolName;
           break;
         }
       }
 
       // If no matching protocol or specifier is found, throw an exception
-      if (targetProtocolIdentifierFactory == null || targetSpecifier == null) {
+      if (targetProtocolIdentifierFactory == null ||
+          targetSpecifier == null ||
+          targetProtocolName == null) {
         throw RemoteToyDeviceException(
           code: RemoteToyDeviceException.codeDeviceNotSupported,
           message: 'Remote toy device not supported',
@@ -108,6 +113,7 @@ class SearchToyWebTask {
         device: device,
         specifier: targetSpecifier,
         protocolIdentifier: targetProtocolIdentifierFactory.create(),
+        protocolName: targetProtocolName,
       );
     } on UserCancelledDialogError catch (e) {
       logger.w('User cancelled web search dialog', ex: e);
