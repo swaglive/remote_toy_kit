@@ -149,15 +149,15 @@ class MonsterPubInitializer implements ProtocolInitializer {
   const MonsterPubInitializer();
 
   @override
-  ProtocolHandler initialize({
+  Future<ProtocolHandler> initialize({
     required Hardware hardware,
     required ProtocolAttributes protocolAttributes,
     required bool isSpecV4,
-  }) {
+  }) async {
     if (!isSpecV4) {
       logger.w('MonsterPub expects spec v4 device configuration');
     }
-    _startAuthenticationIfNeeded(hardware);
+    await _authenticate(hardware);
 
     final outputCount = (protocolAttributes.features ?? [])
         .where((feature) => feature.containsOutput)
@@ -170,45 +170,38 @@ class MonsterPubInitializer implements ProtocolInitializer {
     );
   }
 
-  /// Start authentication if needed.
-  ///
-  /// - [hardware] is the hardware to start authentication on.
-  void _startAuthenticationIfNeeded(Hardware hardware) {
-    if (!hardware.endpoints.contains(Endpoint.rx)) {
-      return;
-    }
-    // Fire-and-forget so initialize stays synchronous.
-    () async {
-      try {
-        final result = await hardware.readValue(
-          cmd: const HardwareReadCmd(endpoint: Endpoint.rx),
-        );
-        final data = result.data;
-        if (data.length < 16) {
-          logger.w('MonsterPub auth data too short: ${data.length}');
-          return;
-        }
-        final int keyIndex = data[0];
-        if (keyIndex < 0 || keyIndex >= _monsterPubKeys.length) {
-          logger.w('MonsterPub auth key index out of range: $keyIndex');
-          return;
-        }
-        final key = _monsterPubKeys[keyIndex];
-        final List<int> auth = List<int>.generate(
-          15,
-          (index) => data[index + 1] ^ key[index],
-        );
-        await hardware.writeValue(
-          cmd: HardwareWriteCmd(
-            endpoint: Endpoint.rx,
-            data: Uint8List.fromList(auth),
-            writeWithResponse: true,
-          ),
-        );
-      } catch (e) {
-        logger.w('MonsterPub auth handshake failed', ex: e);
+  Future<void> _authenticate(Hardware hardware) async {
+    if (!hardware.endpoints.contains(Endpoint.rx)) return;
+
+    try {
+      final result = await hardware.readValue(
+        cmd: const HardwareReadCmd(endpoint: Endpoint.rx),
+      );
+      final data = result.data;
+      if (data.length < 16) {
+        logger.w('MonsterPub auth data too short: ${data.length}');
+        return;
       }
-    }();
+      final int keyIndex = data[0];
+      if (keyIndex < 0 || keyIndex >= _monsterPubKeys.length) {
+        logger.w('MonsterPub auth key index out of range: $keyIndex');
+        return;
+      }
+      final key = _monsterPubKeys[keyIndex];
+      final List<int> auth = List<int>.generate(
+        15,
+        (index) => data[index + 1] ^ key[index],
+      );
+      await hardware.writeValue(
+        cmd: HardwareWriteCmd(
+          endpoint: Endpoint.rx,
+          data: Uint8List.fromList(auth),
+          writeWithResponse: true,
+        ),
+      );
+    } catch (e) {
+      logger.w('MonsterPub auth handshake failed', ex: e);
+    }
   }
 
   /// Resolve the tx endpoint to use.

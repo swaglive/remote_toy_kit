@@ -44,11 +44,11 @@ class SvakomPulseInitializer implements ProtocolInitializer {
   const SvakomPulseInitializer();
 
   @override
-  ProtocolHandler initialize({
+  Future<ProtocolHandler> initialize({
     required Hardware hardware,
     required ProtocolAttributes protocolAttributes,
     required bool isSpecV4,
-  }) {
+  }) async {
     if (!isSpecV4) {
       logger.w('Svakom Pulse expects spec v4 device configuration');
     }

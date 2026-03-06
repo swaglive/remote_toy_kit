@@ -47,7 +47,7 @@ abstract interface class ProtocolInitializer {
   /// Creates a [ProtocolHandler]. [hardware] is passed because some
   /// handlers need direct device communication; [protocolAttributes]
   /// contains the device's feature definitions.
-  ProtocolHandler initialize({
+  Future<ProtocolHandler> initialize({
     required Hardware hardware,
     required ProtocolAttributes protocolAttributes,
     required bool isSpecV4,

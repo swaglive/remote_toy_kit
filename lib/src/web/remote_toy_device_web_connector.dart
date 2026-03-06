@@ -19,6 +19,7 @@ class RemoteToyDeviceWebConnector implements RemoteToyDeviceConnector {
     required this.device,
     required this.specifier,
     required this.protocolIdentifier,
+    required this.protocols,
     required this.isSpecV4,
   });
 
@@ -34,6 +35,10 @@ class RemoteToyDeviceWebConnector implements RemoteToyDeviceConnector {
   /// Identifies the device model and creates the appropriate [ProtocolHandler].
   final ProtocolIdentifier protocolIdentifier;
 
+  /// All known protocol identifier factories, used as fallback when the
+  /// primary protocol identification fails.
+  final Map<String, ProtocolIdentifierFactory> protocols;
+
   /// Whether to use the V4 device config spec.
   final bool isSpecV4;
 
@@ -43,6 +48,7 @@ class RemoteToyDeviceWebConnector implements RemoteToyDeviceConnector {
         device: device,
         specifier: specifier,
         protocolIdentifier: protocolIdentifier,
+        protocols: protocols,
         isSpecV4: isSpecV4,
       ).call();
 }
