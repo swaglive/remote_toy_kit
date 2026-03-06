@@ -20,7 +20,7 @@ import '../../util/logger.dart';
 typedef MobileScanResult = ({
   BluetoothDevice device,
   BluetoothLESpecifier specifier,
-  ProtocolIdentifier protocolIdentifier
+  ProtocolIdentifier protocolIdentifier,
 });
 
 /// Scans for remote-toy devices on iOS/Android via Flutter Blue Plus.
@@ -103,8 +103,7 @@ class SearchToyMobileTask {
             final DeviceIdentifier id = device.remoteId;
             final String name = device.advName;
 
-            // Skip unnamed, already-rejected, or already-notified devices
-            if (name.isEmpty) continue;
+            // Skip already-rejected or already-notified devices
             if (notSupportedDevices.contains(id)) continue;
             if (notified.containsKey(id)) continue;
 
@@ -116,6 +115,11 @@ class SearchToyMobileTask {
             final List<String> services = result.advertisementData.serviceUuids
                 .map((e) => e.str128)
                 .toList();
+
+            // Match Rust SDK scan filter: require a name or advertised
+            // services before attempting specifier matching. Devices with
+            // neither are indistinguishable at this stage.
+            if (name.isEmpty && services.isEmpty) continue;
             // Match the scanned device to a known specifier via
             // BluetoothLESpecifier equality
             final searchedDeviceSpecifier = BluetoothLESpecifier.fromDevice(
@@ -146,7 +150,7 @@ class SearchToyMobileTask {
             final MobileScanResult scannedResult = (
               device: device,
               specifier: targetSpecifier,
-              protocolIdentifier: targetProtocolIdentifierFactory.create()
+              protocolIdentifier: targetProtocolIdentifierFactory.create(),
             );
 
             if (!onScanned$.isClosed) {

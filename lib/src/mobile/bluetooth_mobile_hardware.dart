@@ -22,8 +22,10 @@ class BluetoothMobileHardware extends Hardware {
     required BluetoothDevice device,
     required Map<Endpoint, BluetoothCharacteristic> endpoints,
   }) =>
-      BluetoothMobileHardware._(device: device, endpoints: endpoints)
-        .._listen();
+      BluetoothMobileHardware._(
+        device: device,
+        endpoints: endpoints,
+      ).._listen();
 
   BluetoothMobileHardware._({
     required BluetoothDevice device,

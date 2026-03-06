@@ -4,9 +4,8 @@
 /// Contributor: Victor Doan
 library core.protocol.satisfyer;
 
+import 'dart:async';
 import 'dart:typed_data';
-
-import 'package:rxdart/rxdart.dart';
 
 import '../../configuration/configuration.dart';
 import '../../util/logger.dart';
@@ -32,7 +31,7 @@ class SatisfyerIdentifierFactory implements ProtocolIdentifierFactory {
   ProtocolIdentifier create() => SatisfyerIdentifier();
 }
 
-/// Reads an optional model identifier from the device and returns the initializer.
+/// Reads the model identifier from the rxBleModel GATT characteristic.
 class SatisfyerIdentifier implements ProtocolIdentifier {
   @override
   Future<
@@ -45,8 +44,6 @@ class SatisfyerIdentifier implements ProtocolIdentifier {
   }) async {
     String? modelIdentifier;
 
-    // Read the model/identifier endpoint if available.
-    // The returned data is expected to contain a 4-byte numeric identifier.
     if (hardware.endpoints.contains(Endpoint.rxBleModel)) {
       try {
         final result = await hardware.readValue(
@@ -124,8 +121,8 @@ class Satisfyer extends ProtocolHandler {
   /// Cached speeds for each output feature.
   final List<int> _speeds;
 
-  /// Protocol event stream
-  final PublishSubject<RemoteToyServerMessage> _events$ = PublishSubject();
+  final StreamController<RemoteToyServerMessage> _events$ =
+      StreamController.broadcast();
 
   @override
   Stream<RemoteToyServerMessage> get events$ => _events$.stream;
