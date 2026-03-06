@@ -1,6 +1,6 @@
 name: remote_toy_kit
 description: 'Easy to control remote toy. Port from buttplug'
-version: 0.2.1
+version: 0.3.0
 publish_to: none
 
 environment:
