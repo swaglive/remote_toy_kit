@@ -69,6 +69,7 @@ class RemoteToyKitWeb implements RemoteToyKit {
         :BluetoothDevice device,
         :BluetoothLESpecifier specifier,
         :ProtocolIdentifier protocolIdentifier,
+        :ProtocolName protocolName,
       ) = await SearchToyWebTask(
         config: deviceConfiguration,
         protocols: protocolIdentifierFactories,
@@ -82,8 +83,16 @@ class RemoteToyKitWeb implements RemoteToyKit {
         isSpecV4: deviceConfigVersion == DeviceConfigVersion.v4,
       );
       _isSearching = false;
+      String name = device.name ?? '';
+      if (name.isEmpty) {
+        name = deviceConfiguration
+                .findProtocolDefinition(protocolName)
+                ?.defaults
+                .name ??
+            '';
+      }
       yield RemoteToySearchedDevice(
-        name: device.name ?? '',
+        name: name,
         address: device.id,
         connector: connector,
       );

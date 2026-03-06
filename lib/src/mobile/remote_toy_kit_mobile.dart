@@ -81,8 +81,16 @@ class RemoteToyKitMobile implements RemoteToyKit {
           protocolIdentifier: result.protocolIdentifier,
           isSpecV4: deviceConfigVersion == DeviceConfigVersion.v4,
         );
+        String name = result.device.advName;
+        if (name.isEmpty) {
+          name = deviceConfiguration
+                  .findProtocolDefinition(result.protocolName)
+                  ?.defaults
+                  .name ??
+              '';
+        }
         yield RemoteToySearchedDevice(
-          name: result.device.advName,
+          name: name,
           address: result.device.remoteId.str,
           connector: connector,
         );
