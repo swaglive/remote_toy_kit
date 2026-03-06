@@ -66,6 +66,14 @@ class RemoteToyDevice {
   StreamSubscription<HardwareEvent>? _hardwareEventSubscription;
   StreamSubscription<RemoteToyServerMessage>? _protocolHandlerEventSubscription;
 
+  Timer? _keepaliveTimer;
+  DateTime? _lastWriteTime;
+
+  /// The last HardwareWriteCmd sent through [_handleHardwareCommands].
+  /// The keepalive replays this exact packet to avoid depending on
+  /// protocol-handler internal state which may diverge.
+  HardwareWriteCmd? _lastWriteCmd;
+
   /// Observable stream of the device's connection state.
   Stream<bool> get connected$ => _hardware.connected$;
 
@@ -91,16 +99,73 @@ class RemoteToyDevice {
   }
 
   void _listen() {
-    // Forward events emitted by the protocol handler
     _protocolHandlerEventSubscription =
         _protocolHandler.events$.listen((event) {
       _events$.add(event);
     });
+
+    _startKeepalive();
+  }
+
+  void _startKeepalive() {
+    final strategy = _protocolHandler.keepaliveStrategy;
+    if (strategy is! ProtocolKeepaliveStrategyRepeatLastPacket) return;
+
+    // Send a seed packet through the normal path so _lastWriteCmd is populated.
+    // This mirrors the buttplug SDK's stop-on-connect approach.
+    final seedCmds = _protocolHandler.buildKeepalive();
+    if (seedCmds.isNotEmpty) {
+      _handleHardwareCommands(commands: seedCmds);
+    }
+
+    _keepaliveTimer = Timer.periodic(strategy.interval, (_) {
+      _onKeepaliveTimer();
+    });
+
+    logger.d(
+      'Keepalive started for ${name()} '
+      '(interval: ${strategy.interval.inMilliseconds}ms)',
+    );
+  }
+
+  void _onKeepaliveTimer() {
+    if (!connected) return;
+
+    final strategy = _protocolHandler.keepaliveStrategy;
+    if (strategy is! ProtocolKeepaliveStrategyRepeatLastPacket) return;
+
+    // Use 90% of the interval as the idle threshold to tolerate timer jitter.
+    final threshold = strategy.interval * 0.9;
+    final lastWrite = _lastWriteTime;
+    if (lastWrite != null && DateTime.now().difference(lastWrite) < threshold) {
+      return;
+    }
+
+    _replayLastWrite();
+  }
+
+  /// Replays [_lastWriteCmd] directly to hardware without going through
+  /// [_handleHardwareCommands], so that the tracked command always reflects
+  /// the last *user* command rather than a keepalive echo.
+  Future<void> _replayLastWrite() async {
+    if (!connected) return;
+
+    final cmd = _lastWriteCmd;
+    if (cmd == null) return;
+
+    try {
+      await _hardware.writeValue(cmd: cmd);
+      _lastWriteTime = DateTime.now();
+    } catch (e) {
+      logger.w('Keepalive write failed for ${name()}', ex: e);
+    }
   }
 
   /// Disconnects from the device and cancels all event subscriptions.
   Future<void> disconnect() async {
     logger.d('RemoteToyDevice disconnected (${name()})');
+    _keepaliveTimer?.cancel();
+    _keepaliveTimer = null;
     await Future.wait([
       _hardwareEventSubscription?.cancel(),
       _protocolHandlerEventSubscription?.cancel()
@@ -340,6 +405,8 @@ class RemoteToyDevice {
           break;
         case HardwareWriteCmd():
           await _hardware.writeValue(cmd: command);
+          _lastWriteTime = DateTime.now();
+          _lastWriteCmd = command;
           break;
         case HardwareSubscribeCmd():
           await _hardware.subscribe(cmd: command);
