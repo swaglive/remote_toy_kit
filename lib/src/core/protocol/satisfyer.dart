@@ -153,6 +153,22 @@ class Satisfyer extends ProtocolHandler {
     return _formCommand();
   }
 
+  @override
+  List<HardwareCmd> handleOutputConstrictCmd({
+    required int featureIndex,
+    required String featureId,
+    required int level,
+  }) {
+    if (featureIndex < 0 || featureIndex >= _speeds.length) {
+      logger.w('Satisfyer output index out of range: $featureIndex');
+      return const [];
+    }
+
+    _speeds[featureIndex] = level.clamp(0, 255);
+
+    return _formCommand();
+  }
+
   /// Builds the BLE payload. Each actuator speed is repeated 4 times.
   List<HardwareCmd> _formCommand() {
     if (_speeds.isEmpty) return const [];

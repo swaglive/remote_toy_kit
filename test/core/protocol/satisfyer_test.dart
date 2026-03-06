@@ -260,6 +260,69 @@ void main() {
       });
     });
 
+    group('Satisfyer constrict commands', () {
+      test('encodes constrict as [l,l,l,l] and writes to tx', () {
+        final handler = Satisfyer(outputCount: 1);
+
+        final cmds = handler.handleOutputConstrictCmd(
+          featureIndex: 0,
+          featureId: 'feature-0',
+          level: 7,
+        );
+
+        expect(cmds.length, 1);
+        final cmd = cmds.first as HardwareWriteCmd;
+        expect(cmd.endpoint, Endpoint.tx);
+        expect(cmd.writeWithResponse, isFalse);
+        expect(cmd.data, Uint8List.fromList([7, 7, 7, 7]));
+      });
+
+      test('mixed vibrate + constrict produces correct combined packet', () {
+        final handler = Satisfyer(outputCount: 2);
+
+        handler.handleOutputVibrateCmd(
+          featureIndex: 0,
+          featureId: 'feature-0',
+          speed: 3,
+        );
+
+        final cmds = handler.handleOutputConstrictCmd(
+          featureIndex: 1,
+          featureId: 'feature-1',
+          level: 12,
+        );
+
+        expect(cmds.length, 1);
+        final cmd = cmds.first as HardwareWriteCmd;
+        expect(cmd.data, Uint8List.fromList([3, 3, 3, 3, 12, 12, 12, 12]));
+      });
+
+      test('clamps level to 0..255', () {
+        final handler = Satisfyer(outputCount: 1);
+
+        final cmds = handler.handleOutputConstrictCmd(
+          featureIndex: 0,
+          featureId: 'feature-0',
+          level: 999,
+        );
+
+        final cmd = cmds.first as HardwareWriteCmd;
+        expect(cmd.data, Uint8List.fromList([255, 255, 255, 255]));
+      });
+
+      test('returns empty list when featureIndex is out of range', () {
+        final handler = Satisfyer(outputCount: 1);
+
+        final cmds = handler.handleOutputConstrictCmd(
+          featureIndex: 2,
+          featureId: 'feature-2',
+          level: 10,
+        );
+
+        expect(cmds, isEmpty);
+      });
+    });
+
     group('keepalive strategy', () {
       test('uses RepeatLastPacket with 1-second interval', () {
         final handler = Satisfyer(outputCount: 1);
