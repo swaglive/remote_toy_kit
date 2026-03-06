@@ -17355,6 +17355,7 @@
         {
           "features": [
             {
+              "description": "Vibrator",
               "id": "f14fc3ea-05f0-426a-ac01-70cdbadb43ec",
               "index": 0,
               "output": {
@@ -17367,10 +17368,11 @@
               }
             },
             {
+              "description": "Air Pulse",
               "id": "1a3c8f91-c172-4378-9fe2-64891a06e8d1",
               "index": 1,
               "output": {
-                "vibrate": {
+                "constrict": {
                   "value": [
                     0,
                     100
