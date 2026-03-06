@@ -20,6 +20,48 @@ typedef BluetoothLeUuid = String;
 Object? _readManufacturerData(Map<dynamic, dynamic> json, String _) =>
     json['manufacturer-data'] ?? json['manufacturer_data'];
 
+/// Matches two [BluetoothLEManufacturerData] entries using the same
+/// semantics as the Rust buttplug SDK (specifier.rs PartialEq):
+///
+/// 1. Company IDs must match.
+/// 2. If either side has null data, match on company alone (wildcard).
+/// 3. If lengths are equal, compare byte-for-byte.
+/// 4. If lengths differ, check whether the shorter is a contiguous
+///    subsequence of the longer.
+bool _manufacturerDataMatches(
+  BluetoothLEManufacturerData a,
+  BluetoothLEManufacturerData b,
+) {
+  if (a.company != b.company) return false;
+  if (a.data == null || b.data == null) return true;
+
+  final Uint8List aData = a.data!;
+  final Uint8List bData = b.data!;
+
+  if (aData.length == bData.length) {
+    for (int i = 0; i < aData.length; i++) {
+      if (aData[i] != bData[i]) return false;
+    }
+    return true;
+  }
+
+  final Uint8List needle = aData.length < bData.length ? aData : bData;
+  final Uint8List haystack = aData.length > bData.length ? aData : bData;
+
+  for (int i = 0; i <= haystack.length - needle.length; i++) {
+    bool found = true;
+    for (int j = 0; j < needle.length; j++) {
+      if (haystack[i + j] != needle[j]) {
+        found = false;
+        break;
+      }
+    }
+    if (found) return true;
+  }
+
+  return false;
+}
+
 /// Reads advertised services from both v3 ("advertised-services") and v4 ("advertised_services") formats.
 Object? _readAdvertisedServices(Map<dynamic, dynamic> json, String _) =>
     json['advertised-services'] ?? json['advertised_services'];
@@ -101,7 +143,8 @@ abstract class BluetoothLESpecifier with _$BluetoothLESpecifier {
 
     if (manufacturerData.isNotEmpty && other.manufacturerData.isNotEmpty) {
       for (final BluetoothLEManufacturerData data in manufacturerData) {
-        if (other.manufacturerData.contains(data)) {
+        if (other.manufacturerData
+            .any((o) => _manufacturerDataMatches(data, o))) {
           return true;
         }
       }

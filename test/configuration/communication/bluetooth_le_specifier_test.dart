@@ -96,6 +96,164 @@ void main() {
         // Assert
         expect(a == b, isFalse);
       });
+
+      test('matches when config data is null (company-only wildcard)', () {
+        // Arrange: config has company only, device has company + payload
+        final config = _specifier(
+          manufacturerData: [
+            BluetoothLEManufacturerData(company: 93),
+          ],
+        );
+        final device = _specifier(
+          manufacturerData: [
+            BluetoothLEManufacturerData(
+              company: 93,
+              data: Uint8List.fromList([0, 0, 40, 67]),
+            ),
+          ],
+        );
+
+        // Assert
+        expect(config == device, isTrue);
+      });
+
+      test('matches when device data is null (company-only wildcard)', () {
+        // Arrange
+        final config = _specifier(
+          manufacturerData: [
+            BluetoothLEManufacturerData(
+              company: 93,
+              data: Uint8List.fromList([0, 0, 40]),
+            ),
+          ],
+        );
+        final device = _specifier(
+          manufacturerData: [
+            BluetoothLEManufacturerData(company: 93),
+          ],
+        );
+
+        // Assert
+        expect(config == device, isTrue);
+      });
+
+      test(
+          'matches when device data is a superset of config data (Satisfyer case)',
+          () {
+        // Arrange: config has 3-byte prefix, device has 4 bytes
+        final config = _specifier(
+          manufacturerData: [
+            BluetoothLEManufacturerData(
+              company: 93,
+              data: Uint8List.fromList([0, 0, 40]),
+            ),
+          ],
+        );
+        final device = _specifier(
+          manufacturerData: [
+            BluetoothLEManufacturerData(
+              company: 93,
+              data: Uint8List.fromList([0, 0, 40, 67]),
+            ),
+          ],
+        );
+
+        // Assert
+        expect(config == device, isTrue);
+        expect(device == config, isTrue);
+      });
+
+      test('does not match when company IDs differ', () {
+        // Arrange
+        final a = _specifier(
+          manufacturerData: [
+            BluetoothLEManufacturerData(
+              company: 93,
+              data: Uint8List.fromList([0, 0, 40]),
+            ),
+          ],
+        );
+        final b = _specifier(
+          manufacturerData: [
+            BluetoothLEManufacturerData(
+              company: 99,
+              data: Uint8List.fromList([0, 0, 40]),
+            ),
+          ],
+        );
+
+        // Assert
+        expect(a == b, isFalse);
+      });
+
+      test('does not match when data has no subsequence relationship', () {
+        // Arrange
+        final a = _specifier(
+          manufacturerData: [
+            BluetoothLEManufacturerData(
+              company: 93,
+              data: Uint8List.fromList([0, 0, 39]),
+            ),
+          ],
+        );
+        final b = _specifier(
+          manufacturerData: [
+            BluetoothLEManufacturerData(
+              company: 93,
+              data: Uint8List.fromList([0, 0, 40, 67]),
+            ),
+          ],
+        );
+
+        // Assert
+        expect(a == b, isFalse);
+      });
+
+      test('matches exact same data', () {
+        // Arrange
+        final a = _specifier(
+          manufacturerData: [
+            BluetoothLEManufacturerData(
+              company: 93,
+              data: Uint8List.fromList([0, 0, 40]),
+            ),
+          ],
+        );
+        final b = _specifier(
+          manufacturerData: [
+            BluetoothLEManufacturerData(
+              company: 93,
+              data: Uint8List.fromList([0, 0, 40]),
+            ),
+          ],
+        );
+
+        // Assert
+        expect(a == b, isTrue);
+      });
+
+      test('does not match same-length different data', () {
+        // Arrange
+        final a = _specifier(
+          manufacturerData: [
+            BluetoothLEManufacturerData(
+              company: 93,
+              data: Uint8List.fromList([0, 0, 39]),
+            ),
+          ],
+        );
+        final b = _specifier(
+          manufacturerData: [
+            BluetoothLEManufacturerData(
+              company: 93,
+              data: Uint8List.fromList([0, 0, 40]),
+            ),
+          ],
+        );
+
+        // Assert
+        expect(a == b, isFalse);
+      });
     });
 
     group('advertised services matching', () {
