@@ -1,3 +1,16 @@
+## v0.3.0
+
+### Features
+- differentiate Satisfyer Pro 2 Gen 3 suction as constrict output (#25)
+- add BLE keepalive to prevent Satisfyer idle disconnects (#24)
+- add satisfyer protocol implementation (#9)
+
+### Bug Fixes
+- await BLE init writes and add fallback protocol identification on web (#23)
+- fallback to config default name for devices without BLE advertised name (#22)
+
+
+
 ## v0.2.1
 
 ### Bug Fixes
