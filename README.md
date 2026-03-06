@@ -10,7 +10,8 @@ A Flutter/Dart SDK for discovering, connecting to, and controlling BLE remote-to
 - V3 and V4 device configuration specs
 - Output commands: vibrate, rotate, oscillate, constrict, position, LED, spray, temperature
 - Input commands: battery, RSSI, button, pressure sensor reads and subscriptions
-- Built-in protocol support for Lovense, Svakom (V5 / Pulse), and MonsterPub
+- Built-in protocol support for Lovense, Satisfyer, Svakom (V5 / Pulse), and MonsterPub
+- Automatic BLE keepalive for devices that require it (e.g. Satisfyer)
 
 ## Supported Protocols & Devices
 
@@ -25,7 +26,7 @@ No WiFi, HTTP, MQTT, IR, or RF support.
 
 ### Implemented Device Protocols
 
-Only 4 of the 120+ protocol entries in the bundled V4 config have Dart implementations. Devices from other config entries will be discovered but rejected as unsupported.
+Only 5 of the 120+ protocol entries in the bundled V4 config have Dart implementations. Devices from other config entries will be discovered but rejected as unsupported.
 
 | Protocol | Brand | Device |
 |---|---|---|
@@ -33,6 +34,7 @@ Only 4 of the 120+ protocol entries in the bundled V4 config have Dart implement
 | `lovense` | Loveai | Dolp |
 | `monsterpub` | Sistalk | MonsterPub 2 Doctor Whale, MonsterPub Magic Kiss, MonsterPub 2 Mister Devil, MonsterPub Baby Youth Health, MonsterPub KiniCat, MonsterPub BeatHeart, MonsterPub 1P Mister Devil, MonsterPub Sweet, MonsterPub Amazing, MonsterPub Pop, MonsterHub Tornado |
 | `monsterpub` | Tracy's Dog | Surreal, Craybit Pro |
+| `satisfyer` | Satisfyer | Curvy 1+, Curvy 2+, Curvy 3+, Hot Spot, Plug-ilicious, and other Satisfyer BLE devices listed in the V4 device config |
 | `svakom-v5` | Svakom | Chika, Mora Neo, Trysta Neo, Mini Emma Neo |
 | `svakom-pulse` | Svakom | Pulse Lite Neo, Pulse Union, Pulse Galaxie, Mimiki |
 | `svakom-pulse` | BeYourLover | Kyukyu |

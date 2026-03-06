@@ -124,6 +124,15 @@ class Satisfyer extends ProtocolHandler {
   @override
   Stream<RemoteToyServerMessage> get events$ => _events$.stream;
 
+  @override
+  ProtocolKeepaliveStrategy get keepaliveStrategy =>
+      const ProtocolKeepaliveStrategyRepeatLastPacket(
+        interval: Duration(seconds: 1),
+      );
+
+  @override
+  List<HardwareCmd> buildKeepalive() => _formCommand();
+
   /// Updates one actuator speed, then sends a full multi-actuator packet.
   ///
   /// The device expects one packet that contains all actuator speeds.
@@ -161,7 +170,4 @@ class Satisfyer extends ProtocolHandler {
       ),
     ];
   }
-
-  /// Returns the current full packet if the session layer needs to resend it periodically.
-  List<HardwareCmd> buildKeepalive() => _formCommand();
 }

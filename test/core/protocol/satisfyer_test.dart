@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:remote_toy_kit/src/configuration/configuration.dart';
 import 'package:remote_toy_kit/src/core/hardware/hardware.dart';
 import 'package:remote_toy_kit/src/core/message/message.dart';
+import 'package:remote_toy_kit/src/core/protocol/keepalive_strategy.dart';
 import 'package:remote_toy_kit/src/core/protocol/satisfyer.dart';
 
 class _FakeHardware implements Hardware {
@@ -256,6 +257,57 @@ void main() {
         final cmd = keepalive.first as HardwareWriteCmd;
         expect(cmd.endpoint, Endpoint.tx);
         expect(cmd.data, Uint8List.fromList([9, 9, 9, 9, 0, 0, 0, 0]));
+      });
+    });
+
+    group('keepalive strategy', () {
+      test('uses RepeatLastPacket with 1-second interval', () {
+        final handler = Satisfyer(outputCount: 1);
+
+        expect(
+          handler.keepaliveStrategy,
+          isA<ProtocolKeepaliveStrategyRepeatLastPacket>(),
+        );
+
+        final strategy = handler.keepaliveStrategy
+            as ProtocolKeepaliveStrategyRepeatLastPacket;
+        expect(strategy.interval, const Duration(seconds: 1));
+      });
+
+      test('buildKeepalive returns zeros before any command', () {
+        final handler = Satisfyer(outputCount: 2);
+
+        final cmds = handler.buildKeepalive();
+        expect(cmds.length, 1);
+
+        final cmd = cmds.first as HardwareWriteCmd;
+        expect(cmd.data, Uint8List.fromList([0, 0, 0, 0, 0, 0, 0, 0]));
+      });
+
+      test('buildKeepalive reflects the latest speeds', () {
+        final handler = Satisfyer(outputCount: 2);
+
+        handler.handleOutputVibrateCmd(
+          featureIndex: 0,
+          featureId: 'f0',
+          speed: 100,
+        );
+        handler.handleOutputVibrateCmd(
+          featureIndex: 1,
+          featureId: 'f1',
+          speed: 50,
+        );
+
+        final cmd = handler.buildKeepalive().first as HardwareWriteCmd;
+        expect(
+          cmd.data,
+          Uint8List.fromList([100, 100, 100, 100, 50, 50, 50, 50]),
+        );
+      });
+
+      test('buildKeepalive returns empty list when outputCount is 0', () {
+        final handler = Satisfyer(outputCount: 0);
+        expect(handler.buildKeepalive(), isEmpty);
       });
     });
   });

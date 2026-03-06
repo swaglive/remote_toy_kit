@@ -12,11 +12,14 @@ import '../../remote_toy_device.dart';
 import '../../util/logger.dart';
 import '../hardware/hardware.dart';
 import '../message/message.dart';
+import 'keepalive_strategy.dart';
 import 'lovense/lovense.dart';
 import 'monsterpub.dart';
 import 'svakom/svakom_v5.dart';
 import 'svakom/svakom_pulse.dart';
 import 'satisfyer.dart';
+
+export 'keepalive_strategy.dart';
 
 abstract interface class ProtocolIdentifierFactory {
   /// The identifier of the protocol.
@@ -62,6 +65,15 @@ abstract class ProtocolHandler {
   /// Whether this handler intercepts all messages directly, bypassing
   /// [RemoteToyDevice]'s default command dispatch.
   bool get hasHandleMessage => false;
+
+  /// Strategy for keeping the BLE connection alive during idle periods.
+  ProtocolKeepaliveStrategy get keepaliveStrategy =>
+      const ProtocolKeepaliveStrategyNone();
+
+  /// Returns hardware commands that should be sent periodically to keep the
+  /// device connection alive. Only meaningful when [keepaliveStrategy] is not
+  /// [ProtocolKeepaliveStrategyNone].
+  List<HardwareCmd> buildKeepalive() => const [];
 
   /// Event stream from remote toy device.
   Stream<RemoteToyServerMessage> get events$;
