@@ -152,11 +152,7 @@ class MonsterPubInitializer implements ProtocolInitializer {
   Future<ProtocolHandler> initialize({
     required Hardware hardware,
     required ProtocolAttributes protocolAttributes,
-    required bool isSpecV4,
   }) async {
-    if (!isSpecV4) {
-      logger.w('MonsterPub expects spec v4 device configuration');
-    }
     await _authenticate(hardware);
 
     final outputCount = (protocolAttributes.features ?? [])

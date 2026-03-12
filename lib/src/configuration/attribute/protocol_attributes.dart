@@ -3,7 +3,6 @@
 library configuration.attribute.protocol_attributes;
 
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../../core/message/message.dart';
 import '../configuration.dart';
 
 part 'protocol_attributes.freezed.dart';
@@ -14,7 +13,7 @@ abstract class ProtocolAttributes with _$ProtocolAttributes {
   const ProtocolAttributes._();
 
   /// Protocol attributes.
-  /// [id] is the unique identifier string, used in spec 4.0.
+  /// [id] is the unique identifier string.
   /// [identifier] is the list of identifier strings.
   /// [name] is the name of the protocol.
   /// [features] is the list of [DeviceFeature].
@@ -27,29 +26,4 @@ abstract class ProtocolAttributes with _$ProtocolAttributes {
 
   factory ProtocolAttributes.fromJson(Map<String, dynamic> json) =>
       _$ProtocolAttributesFromJson(json);
-
-  /// Check if any feature in this attribute set supports the given client [messageType].
-  @Deprecated('Will be deprecated after spec 4.0 is fully released')
-  bool isAllowedMessage({required RemoteToyClientMessageType messageType}) {
-    for (final feature in features ?? []) {
-      final actuatorMessageType =
-          ActuatorFeatureMessageType.tryFrom(messageType: messageType);
-      final DeviceFeatureActuator? actuator = feature.actuator;
-      if (actuatorMessageType != null && actuator != null) {
-        if (actuator.messages.contains(actuatorMessageType)) {
-          return true;
-        }
-      }
-      final sensorMessageType = SensorFeatureMessageType.tryFrom(
-        messageType: messageType,
-      );
-      final DeviceFeatureSensor? sensor = feature.sensor;
-      if (sensorMessageType != null && sensor != null) {
-        if (sensor.messages.contains(sensorMessageType)) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
 }

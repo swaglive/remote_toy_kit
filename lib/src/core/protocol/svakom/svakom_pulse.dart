@@ -8,7 +8,6 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import '../../../configuration/configuration.dart';
-import '../../../util/logger.dart';
 import '../../hardware/hardware.dart';
 import '../../message/message.dart';
 import '../protocol.dart';
@@ -47,11 +46,7 @@ class SvakomPulseInitializer implements ProtocolInitializer {
   Future<ProtocolHandler> initialize({
     required Hardware hardware,
     required ProtocolAttributes protocolAttributes,
-    required bool isSpecV4,
   }) async {
-    if (!isSpecV4) {
-      logger.w('Svakom Pulse expects spec v4 device configuration');
-    }
     return SvakomPulse();
   }
 }
@@ -72,14 +67,6 @@ class SvakomPulse extends ProtocolHandler {
     required int speed,
   }) {
     return _buildVibrateCommand(speed);
-  }
-
-  @override
-  List<HardwareCmd> handleScalarVibrateCmd({
-    required int index,
-    required int scalar,
-  }) {
-    return _buildVibrateCommand(scalar);
   }
 
   List<HardwareCmd> _buildVibrateCommand(int speed) {

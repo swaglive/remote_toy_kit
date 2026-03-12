@@ -11,11 +11,15 @@ Uint8List _dataFromCmd(List<HardwareCmd> cmds) {
 
 void main() {
   group('SvakomV5 handlers', () {
-    test('vibrate uses channel 0 for mode 0x01', () {
+    test('vibrate single channel builds correct command', () {
       final handler = SvakomV5();
 
       final data = _dataFromCmd(
-        handler.handleScalarVibrateCmd(index: 0, scalar: 10),
+        handler.handleOutputVibrateCmd(
+          featureIndex: 0,
+          featureId: 'v0',
+          speed: 10,
+        ),
       );
 
       expect(
@@ -24,11 +28,15 @@ void main() {
       );
     });
 
-    test('vibrate uses channel 1 for mode 0x02', () {
+    test('vibrate second channel builds correct command', () {
       final handler = SvakomV5();
 
       final data = _dataFromCmd(
-        handler.handleScalarVibrateCmd(index: 1, scalar: 20),
+        handler.handleOutputVibrateCmd(
+          featureIndex: 1,
+          featureId: 'v1',
+          speed: 20,
+        ),
       );
 
       expect(
@@ -40,9 +48,17 @@ void main() {
     test('vibrate uses mode 0x00 when both channels active', () {
       final handler = SvakomV5();
 
-      handler.handleScalarVibrateCmd(index: 0, scalar: 5);
+      handler.handleOutputVibrateCmd(
+        featureIndex: 0,
+        featureId: 'v0',
+        speed: 5,
+      );
       final data = _dataFromCmd(
-        handler.handleScalarVibrateCmd(index: 1, scalar: 8),
+        handler.handleOutputVibrateCmd(
+          featureIndex: 1,
+          featureId: 'v1',
+          speed: 8,
+        ),
       );
 
       expect(
@@ -60,19 +76,6 @@ void main() {
           featureId: 'v0',
           speed: 0,
         ),
-      );
-
-      expect(
-        data,
-        orderedEquals([0x55, 0x03, 0x00, 0x00, 0x00, 0x00]),
-      );
-    });
-
-    test('vibrate clamps out-of-range index to previous state', () {
-      final handler = SvakomV5();
-
-      final data = _dataFromCmd(
-        handler.handleScalarVibrateCmd(index: 2, scalar: 200),
       );
 
       expect(

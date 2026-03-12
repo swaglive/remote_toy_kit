@@ -11,7 +11,6 @@ library core.message.v4.checked_output_cmd;
 import '../../../configuration/attribute/protocol_attributes.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../v4/output_cmd.dart';
-import '../../../configuration/attribute/device_feature.dart';
 import '../../exceptions.dart';
 import 'try_from_device_attributes.dart';
 
@@ -36,8 +35,6 @@ sealed class CheckedOutputCmd
 
   /// Try to create a checked output command from the given output command and protocol attributes.
   ///
-  /// This is only allowed for spec 4.0. required the protocol attributes's features has to be DeviceFeatureV4.
-  ///
   /// [cmd] is unchecked output command from app requested.
   /// [attributes] is the protocol attributes of the device.
   ///
@@ -59,15 +56,13 @@ sealed class CheckedOutputCmd
 
     final outputType = cmd.command.outputType;
 
-    // Temporary cast to DeviceFeatureV4 for now due to could be DeviceFeatureV3 or DeviceFeatureV4
     final feature = features.firstWhere(
-      (feature) =>
-          (feature as DeviceFeatureV4).output?.contains(outputType) == true,
+      (feature) => feature.output?.contains(outputType) == true,
       orElse: () => throw RemoteToyDeviceException(
         code: RemoteToyDeviceException.codeDeviceFeatureNotFound,
         message: 'No feature found supporting output type $outputType',
       ),
-    ) as DeviceFeatureV4;
+    );
 
     final output = feature.output;
     final value = cmd.command.value;

@@ -18,8 +18,7 @@ class RemoteToyKitMobile implements RemoteToyKit {
 
   bool _isSearching = false;
 
-  final DeviceConfigVersion deviceConfigVersion;
-  RemoteToyKitMobile({required this.deviceConfigVersion});
+  RemoteToyKitMobile();
 
   /// Lazily runs [_doInitialize] once. The `??=` operator caches the returned
   /// [Future] on first call, so subsequent calls return the same future
@@ -30,8 +29,7 @@ class RemoteToyKitMobile implements RemoteToyKit {
 
   Future<void> _doInitialize() async {
     _protocolIdentifierFactories = loadProtocolIdentifierFactories();
-    _deviceConfiguration =
-        await loadDeviceConfiguration(deviceConfigVersion: deviceConfigVersion);
+    _deviceConfiguration = await loadDeviceConfiguration();
   }
 
   @override
@@ -79,7 +77,6 @@ class RemoteToyKitMobile implements RemoteToyKit {
           device: result.device,
           specifier: result.specifier,
           protocolIdentifier: result.protocolIdentifier,
-          isSpecV4: deviceConfigVersion == DeviceConfigVersion.v4,
         );
         String name = result.device.advName;
         if (name.isEmpty) {

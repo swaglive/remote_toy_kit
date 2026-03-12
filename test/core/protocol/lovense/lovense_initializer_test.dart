@@ -5,12 +5,30 @@ import 'package:remote_toy_kit/src/core/protocol/lovense/lovense.dart';
 import '../../../support/test_hardware.dart';
 
 DeviceFeature _feature(FeatureType type) {
-  return DeviceFeature.v3(
-    description: '',
-    featureType: type,
-    actuator: const DeviceFeatureActuator(
-      stepRange: RangeInclusive(start: 0, end: 100),
-      messages: {ActuatorFeatureMessageType.scalarCmd},
+  return DeviceFeature(
+    id: type.name,
+    index: 0,
+    output: DeviceFeatureOutput(
+      vibrate: type == FeatureType.vibrate
+          ? const DeviceFeatureOutputValueProperties(
+              value: RangeInclusive(start: 0, end: 100),
+            )
+          : null,
+      rotate: type == FeatureType.rotate
+          ? const DeviceFeatureOutputValueProperties(
+              value: RangeInclusive(start: 0, end: 100),
+            )
+          : null,
+      oscillate: type == FeatureType.oscillate
+          ? const DeviceFeatureOutputValueProperties(
+              value: RangeInclusive(start: 0, end: 100),
+            )
+          : null,
+      constrict: type == FeatureType.constrict
+          ? const DeviceFeatureOutputValueProperties(
+              value: RangeInclusive(start: 0, end: 100),
+            )
+          : null,
     ),
   );
 }
@@ -30,21 +48,6 @@ void main() {
       hardware = TestHardware(name: 'test-device', connected: false);
     });
 
-    test('returns spec v3 handler when not spec v4', () async {
-      final attributes = _attributes([_feature(FeatureType.vibrate)]);
-      const initializer = LovenseInitializer(deviceType: 'A');
-
-      final handler = await initializer.initialize(
-        hardware: hardware,
-        protocolAttributes: attributes,
-        isSpecV4: false,
-      );
-
-      expect(handler, isA<LovenseSpecV3>());
-      final spec = handler as LovenseSpecV3;
-      expect(spec.deviceType, 'A');
-    });
-
     test('returns stroker for H device type', () async {
       final attributes = _attributes([]);
       const initializer = LovenseInitializer(deviceType: 'H');
@@ -52,7 +55,6 @@ void main() {
       final handler = await initializer.initialize(
         hardware: hardware,
         protocolAttributes: attributes,
-        isSpecV4: true,
       );
 
       expect(handler, isA<LovenseStroker>());
@@ -65,7 +67,6 @@ void main() {
       final handler = await initializer.initialize(
         hardware: hardware,
         protocolAttributes: attributes,
-        isSpecV4: true,
       );
 
       expect(handler, isA<LovenseSingleActuator>());
@@ -80,7 +81,6 @@ void main() {
       final handler = await initializer.initialize(
         hardware: hardware,
         protocolAttributes: attributes,
-        isSpecV4: true,
       );
 
       expect(handler, isA<LovenseMax>());
@@ -95,7 +95,6 @@ void main() {
       final handler = await initializer.initialize(
         hardware: hardware,
         protocolAttributes: attributes,
-        isSpecV4: true,
       );
 
       expect(handler, isA<LovenseRotateVibrator>());
@@ -114,7 +113,6 @@ void main() {
       final handler = await initializer.initialize(
         hardware: hardware,
         protocolAttributes: attributes,
-        isSpecV4: true,
       );
 
       expect(handler, isA<LovenseMultiActuator>());
@@ -132,7 +130,6 @@ void main() {
       final handler = await initializer.initialize(
         hardware: hardware,
         protocolAttributes: attributes,
-        isSpecV4: true,
       );
 
       expect(handler, isA<LovenseDualActuator>());

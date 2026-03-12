@@ -33,41 +33,26 @@ class _ScalarCmdControlViewState extends State<ScalarCmdControlView> {
         .skip(1)
         .throttleTime(const Duration(milliseconds: 100), trailing: true)
         .listen((value) {
-      if (widget.clientDeviceFeature.feature is DeviceFeatureV4) {
-        switch (widget.outputType) {
-          case OutputType.vibrate:
-          case OutputType.constrict:
-          case OutputType.oscillate:
-            // Generate client output command
-            final clientOutputCommand = ClientDeviceOutputCommand.tryFrom(
-                widget.outputType,
-                ClientDeviceCommandValue.fromDouble(value: value));
-            if (clientOutputCommand == null) {
-              break;
-            }
-
-            // Generate output cmd
-            final OutputCmd outputCmd = widget.clientDeviceFeature
-                .convertClientCmdtoOutputCmd(clientOutputCommand);
-
-            // Execute command
-            _device?.executeCommand(
-              message: OutputCmdClientMessage(command: outputCmd),
-            );
+      switch (widget.outputType) {
+        case OutputType.vibrate:
+        case OutputType.constrict:
+        case OutputType.oscillate:
+          final clientOutputCommand = ClientDeviceOutputCommand.tryFrom(
+              widget.outputType,
+              ClientDeviceCommandValue.fromDouble(value: value));
+          if (clientOutputCommand == null) {
             break;
-          default:
-            break;
-        }
-      } else if (widget.clientDeviceFeature.feature is DeviceFeatureV3) {
-        _device?.executeCommand(
-          message: ScalarCmdClientMessage(scalars: [
-            ScalarSubcommand(
-              featureIndex: widget.featureIndex,
-              scalar: value,
-              outputType: widget.outputType,
-            ),
-          ]),
-        );
+          }
+
+          final OutputCmd outputCmd = widget.clientDeviceFeature
+              .convertClientCmdtoOutputCmd(clientOutputCommand);
+
+          _device?.executeCommand(
+            message: OutputCmdClientMessage(command: outputCmd),
+          );
+          break;
+        default:
+          break;
       }
     });
     super.initState();

@@ -18,14 +18,6 @@ RemoteToyClientMessage _$RemoteToyClientMessageFromJson(
       return StopDeviceCmdClientMessage.fromJson(json);
     case 'stopAllDevices':
       return StopAllDevicesClientMessage.fromJson(json);
-    case 'scalarCmd':
-      return ScalarCmdClientMessage.fromJson(json);
-    case 'linearCmd':
-      return LinearCmdClientMessage.fromJson(json);
-    case 'rotateCmd':
-      return RotateCmdClientMessage.fromJson(json);
-    case 'sensorReadCmd':
-      return SensorReadCmdClientMessage.fromJson(json);
     case 'sensorSubscribeCmd':
       return SensorSubscribeCmdClientMessage.fromJson(json);
     case 'sensorUnsubscrubeCmd':
@@ -89,10 +81,6 @@ extension RemoteToyClientMessagePatterns on RemoteToyClientMessage {
   TResult maybeMap<TResult extends Object?>({
     TResult Function(StopDeviceCmdClientMessage value)? stopDeviceCmd,
     TResult Function(StopAllDevicesClientMessage value)? stopAllDevices,
-    TResult Function(ScalarCmdClientMessage value)? scalarCmd,
-    TResult Function(LinearCmdClientMessage value)? linearCmd,
-    TResult Function(RotateCmdClientMessage value)? rotateCmd,
-    TResult Function(SensorReadCmdClientMessage value)? sensorReadCmd,
     TResult Function(SensorSubscribeCmdClientMessage value)? sensorSubscribeCmd,
     TResult Function(SensorUnsubscribeCmdClientMessage value)?
         sensorUnsubscrubeCmd,
@@ -106,14 +94,6 @@ extension RemoteToyClientMessagePatterns on RemoteToyClientMessage {
         return stopDeviceCmd(_that);
       case StopAllDevicesClientMessage() when stopAllDevices != null:
         return stopAllDevices(_that);
-      case ScalarCmdClientMessage() when scalarCmd != null:
-        return scalarCmd(_that);
-      case LinearCmdClientMessage() when linearCmd != null:
-        return linearCmd(_that);
-      case RotateCmdClientMessage() when rotateCmd != null:
-        return rotateCmd(_that);
-      case SensorReadCmdClientMessage() when sensorReadCmd != null:
-        return sensorReadCmd(_that);
       case SensorSubscribeCmdClientMessage() when sensorSubscribeCmd != null:
         return sensorSubscribeCmd(_that);
       case SensorUnsubscribeCmdClientMessage()
@@ -145,10 +125,6 @@ extension RemoteToyClientMessagePatterns on RemoteToyClientMessage {
   TResult map<TResult extends Object?>({
     required TResult Function(StopDeviceCmdClientMessage value) stopDeviceCmd,
     required TResult Function(StopAllDevicesClientMessage value) stopAllDevices,
-    required TResult Function(ScalarCmdClientMessage value) scalarCmd,
-    required TResult Function(LinearCmdClientMessage value) linearCmd,
-    required TResult Function(RotateCmdClientMessage value) rotateCmd,
-    required TResult Function(SensorReadCmdClientMessage value) sensorReadCmd,
     required TResult Function(SensorSubscribeCmdClientMessage value)
         sensorSubscribeCmd,
     required TResult Function(SensorUnsubscribeCmdClientMessage value)
@@ -162,14 +138,6 @@ extension RemoteToyClientMessagePatterns on RemoteToyClientMessage {
         return stopDeviceCmd(_that);
       case StopAllDevicesClientMessage():
         return stopAllDevices(_that);
-      case ScalarCmdClientMessage():
-        return scalarCmd(_that);
-      case LinearCmdClientMessage():
-        return linearCmd(_that);
-      case RotateCmdClientMessage():
-        return rotateCmd(_that);
-      case SensorReadCmdClientMessage():
-        return sensorReadCmd(_that);
       case SensorSubscribeCmdClientMessage():
         return sensorSubscribeCmd(_that);
       case SensorUnsubscribeCmdClientMessage():
@@ -197,10 +165,6 @@ extension RemoteToyClientMessagePatterns on RemoteToyClientMessage {
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(StopDeviceCmdClientMessage value)? stopDeviceCmd,
     TResult? Function(StopAllDevicesClientMessage value)? stopAllDevices,
-    TResult? Function(ScalarCmdClientMessage value)? scalarCmd,
-    TResult? Function(LinearCmdClientMessage value)? linearCmd,
-    TResult? Function(RotateCmdClientMessage value)? rotateCmd,
-    TResult? Function(SensorReadCmdClientMessage value)? sensorReadCmd,
     TResult? Function(SensorSubscribeCmdClientMessage value)?
         sensorSubscribeCmd,
     TResult? Function(SensorUnsubscribeCmdClientMessage value)?
@@ -214,14 +178,6 @@ extension RemoteToyClientMessagePatterns on RemoteToyClientMessage {
         return stopDeviceCmd(_that);
       case StopAllDevicesClientMessage() when stopAllDevices != null:
         return stopAllDevices(_that);
-      case ScalarCmdClientMessage() when scalarCmd != null:
-        return scalarCmd(_that);
-      case LinearCmdClientMessage() when linearCmd != null:
-        return linearCmd(_that);
-      case RotateCmdClientMessage() when rotateCmd != null:
-        return rotateCmd(_that);
-      case SensorReadCmdClientMessage() when sensorReadCmd != null:
-        return sensorReadCmd(_that);
       case SensorSubscribeCmdClientMessage() when sensorSubscribeCmd != null:
         return sensorSubscribeCmd(_that);
       case SensorUnsubscribeCmdClientMessage()
@@ -252,10 +208,6 @@ extension RemoteToyClientMessagePatterns on RemoteToyClientMessage {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? stopDeviceCmd,
     TResult Function()? stopAllDevices,
-    TResult Function(List<ScalarSubcommand> scalars)? scalarCmd,
-    TResult Function(List<VectorSubcommand> vectors)? linearCmd,
-    TResult Function(List<RotationSubcommand> rotations)? rotateCmd,
-    TResult Function(int featureIndex, InputType inputType)? sensorReadCmd,
     TResult Function(int featureIndex, InputType inputType)? sensorSubscribeCmd,
     TResult Function(int featureIndex, InputType inputType)?
         sensorUnsubscrubeCmd,
@@ -269,14 +221,6 @@ extension RemoteToyClientMessagePatterns on RemoteToyClientMessage {
         return stopDeviceCmd();
       case StopAllDevicesClientMessage() when stopAllDevices != null:
         return stopAllDevices();
-      case ScalarCmdClientMessage() when scalarCmd != null:
-        return scalarCmd(_that.scalars);
-      case LinearCmdClientMessage() when linearCmd != null:
-        return linearCmd(_that.vectors);
-      case RotateCmdClientMessage() when rotateCmd != null:
-        return rotateCmd(_that.rotations);
-      case SensorReadCmdClientMessage() when sensorReadCmd != null:
-        return sensorReadCmd(_that.featureIndex, _that.inputType);
       case SensorSubscribeCmdClientMessage() when sensorSubscribeCmd != null:
         return sensorSubscribeCmd(_that.featureIndex, _that.inputType);
       case SensorUnsubscribeCmdClientMessage()
@@ -308,11 +252,6 @@ extension RemoteToyClientMessagePatterns on RemoteToyClientMessage {
   TResult when<TResult extends Object?>({
     required TResult Function() stopDeviceCmd,
     required TResult Function() stopAllDevices,
-    required TResult Function(List<ScalarSubcommand> scalars) scalarCmd,
-    required TResult Function(List<VectorSubcommand> vectors) linearCmd,
-    required TResult Function(List<RotationSubcommand> rotations) rotateCmd,
-    required TResult Function(int featureIndex, InputType inputType)
-        sensorReadCmd,
     required TResult Function(int featureIndex, InputType inputType)
         sensorSubscribeCmd,
     required TResult Function(int featureIndex, InputType inputType)
@@ -326,14 +265,6 @@ extension RemoteToyClientMessagePatterns on RemoteToyClientMessage {
         return stopDeviceCmd();
       case StopAllDevicesClientMessage():
         return stopAllDevices();
-      case ScalarCmdClientMessage():
-        return scalarCmd(_that.scalars);
-      case LinearCmdClientMessage():
-        return linearCmd(_that.vectors);
-      case RotateCmdClientMessage():
-        return rotateCmd(_that.rotations);
-      case SensorReadCmdClientMessage():
-        return sensorReadCmd(_that.featureIndex, _that.inputType);
       case SensorSubscribeCmdClientMessage():
         return sensorSubscribeCmd(_that.featureIndex, _that.inputType);
       case SensorUnsubscribeCmdClientMessage():
@@ -361,10 +292,6 @@ extension RemoteToyClientMessagePatterns on RemoteToyClientMessage {
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? stopDeviceCmd,
     TResult? Function()? stopAllDevices,
-    TResult? Function(List<ScalarSubcommand> scalars)? scalarCmd,
-    TResult? Function(List<VectorSubcommand> vectors)? linearCmd,
-    TResult? Function(List<RotationSubcommand> rotations)? rotateCmd,
-    TResult? Function(int featureIndex, InputType inputType)? sensorReadCmd,
     TResult? Function(int featureIndex, InputType inputType)?
         sensorSubscribeCmd,
     TResult? Function(int featureIndex, InputType inputType)?
@@ -378,14 +305,6 @@ extension RemoteToyClientMessagePatterns on RemoteToyClientMessage {
         return stopDeviceCmd();
       case StopAllDevicesClientMessage() when stopAllDevices != null:
         return stopAllDevices();
-      case ScalarCmdClientMessage() when scalarCmd != null:
-        return scalarCmd(_that.scalars);
-      case LinearCmdClientMessage() when linearCmd != null:
-        return linearCmd(_that.vectors);
-      case RotateCmdClientMessage() when rotateCmd != null:
-        return rotateCmd(_that.rotations);
-      case SensorReadCmdClientMessage() when sensorReadCmd != null:
-        return sensorReadCmd(_that.featureIndex, _that.inputType);
       case SensorSubscribeCmdClientMessage() when sensorSubscribeCmd != null:
         return sensorSubscribeCmd(_that.featureIndex, _that.inputType);
       case SensorUnsubscribeCmdClientMessage()
@@ -503,368 +422,6 @@ class _$StopAllDevicesClientMessageCopyWithImpl<$Res>
 
   final StopAllDevicesClientMessage _self;
   final $Res Function(StopAllDevicesClientMessage) _then;
-}
-
-/// @nodoc
-@JsonSerializable()
-@Deprecated('Will be deprecated after spec 4.0 is fully released')
-class ScalarCmdClientMessage extends RemoteToyClientMessage {
-  const ScalarCmdClientMessage(
-      {required final List<ScalarSubcommand> scalars, final String? $type})
-      : _scalars = scalars,
-        $type = $type ?? 'scalarCmd',
-        super._();
-  factory ScalarCmdClientMessage.fromJson(Map<String, dynamic> json) =>
-      _$ScalarCmdClientMessageFromJson(json);
-
-  final List<ScalarSubcommand> _scalars;
-  List<ScalarSubcommand> get scalars {
-    if (_scalars is EqualUnmodifiableListView) return _scalars;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_scalars);
-  }
-
-  @JsonKey(name: 'runtimeType')
-  final String $type;
-
-  /// Create a copy of RemoteToyClientMessage
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $ScalarCmdClientMessageCopyWith<ScalarCmdClientMessage> get copyWith =>
-      _$ScalarCmdClientMessageCopyWithImpl<ScalarCmdClientMessage>(
-          this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$ScalarCmdClientMessageToJson(
-      this,
-    );
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is ScalarCmdClientMessage &&
-            const DeepCollectionEquality().equals(other._scalars, _scalars));
-  }
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(_scalars));
-
-  @override
-  String toString() {
-    return 'RemoteToyClientMessage.scalarCmd(scalars: $scalars)';
-  }
-}
-
-/// @nodoc
-abstract mixin class $ScalarCmdClientMessageCopyWith<$Res>
-    implements $RemoteToyClientMessageCopyWith<$Res> {
-  factory $ScalarCmdClientMessageCopyWith(ScalarCmdClientMessage value,
-          $Res Function(ScalarCmdClientMessage) _then) =
-      _$ScalarCmdClientMessageCopyWithImpl;
-  @useResult
-  $Res call({List<ScalarSubcommand> scalars});
-}
-
-/// @nodoc
-class _$ScalarCmdClientMessageCopyWithImpl<$Res>
-    implements $ScalarCmdClientMessageCopyWith<$Res> {
-  _$ScalarCmdClientMessageCopyWithImpl(this._self, this._then);
-
-  final ScalarCmdClientMessage _self;
-  final $Res Function(ScalarCmdClientMessage) _then;
-
-  /// Create a copy of RemoteToyClientMessage
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? scalars = null,
-  }) {
-    return _then(ScalarCmdClientMessage(
-      scalars: null == scalars
-          ? _self._scalars
-          : scalars // ignore: cast_nullable_to_non_nullable
-              as List<ScalarSubcommand>,
-    ));
-  }
-}
-
-/// @nodoc
-@JsonSerializable()
-@Deprecated('Will be deprecated after spec 4.0 is fully released')
-class LinearCmdClientMessage extends RemoteToyClientMessage {
-  const LinearCmdClientMessage(
-      {required final List<VectorSubcommand> vectors, final String? $type})
-      : _vectors = vectors,
-        $type = $type ?? 'linearCmd',
-        super._();
-  factory LinearCmdClientMessage.fromJson(Map<String, dynamic> json) =>
-      _$LinearCmdClientMessageFromJson(json);
-
-  final List<VectorSubcommand> _vectors;
-  List<VectorSubcommand> get vectors {
-    if (_vectors is EqualUnmodifiableListView) return _vectors;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_vectors);
-  }
-
-  @JsonKey(name: 'runtimeType')
-  final String $type;
-
-  /// Create a copy of RemoteToyClientMessage
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $LinearCmdClientMessageCopyWith<LinearCmdClientMessage> get copyWith =>
-      _$LinearCmdClientMessageCopyWithImpl<LinearCmdClientMessage>(
-          this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$LinearCmdClientMessageToJson(
-      this,
-    );
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is LinearCmdClientMessage &&
-            const DeepCollectionEquality().equals(other._vectors, _vectors));
-  }
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(_vectors));
-
-  @override
-  String toString() {
-    return 'RemoteToyClientMessage.linearCmd(vectors: $vectors)';
-  }
-}
-
-/// @nodoc
-abstract mixin class $LinearCmdClientMessageCopyWith<$Res>
-    implements $RemoteToyClientMessageCopyWith<$Res> {
-  factory $LinearCmdClientMessageCopyWith(LinearCmdClientMessage value,
-          $Res Function(LinearCmdClientMessage) _then) =
-      _$LinearCmdClientMessageCopyWithImpl;
-  @useResult
-  $Res call({List<VectorSubcommand> vectors});
-}
-
-/// @nodoc
-class _$LinearCmdClientMessageCopyWithImpl<$Res>
-    implements $LinearCmdClientMessageCopyWith<$Res> {
-  _$LinearCmdClientMessageCopyWithImpl(this._self, this._then);
-
-  final LinearCmdClientMessage _self;
-  final $Res Function(LinearCmdClientMessage) _then;
-
-  /// Create a copy of RemoteToyClientMessage
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? vectors = null,
-  }) {
-    return _then(LinearCmdClientMessage(
-      vectors: null == vectors
-          ? _self._vectors
-          : vectors // ignore: cast_nullable_to_non_nullable
-              as List<VectorSubcommand>,
-    ));
-  }
-}
-
-/// @nodoc
-@JsonSerializable()
-@Deprecated('Will be deprecated after spec 4.0 is fully released')
-class RotateCmdClientMessage extends RemoteToyClientMessage {
-  const RotateCmdClientMessage(
-      {required final List<RotationSubcommand> rotations, final String? $type})
-      : _rotations = rotations,
-        $type = $type ?? 'rotateCmd',
-        super._();
-  factory RotateCmdClientMessage.fromJson(Map<String, dynamic> json) =>
-      _$RotateCmdClientMessageFromJson(json);
-
-  final List<RotationSubcommand> _rotations;
-  List<RotationSubcommand> get rotations {
-    if (_rotations is EqualUnmodifiableListView) return _rotations;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_rotations);
-  }
-
-  @JsonKey(name: 'runtimeType')
-  final String $type;
-
-  /// Create a copy of RemoteToyClientMessage
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $RotateCmdClientMessageCopyWith<RotateCmdClientMessage> get copyWith =>
-      _$RotateCmdClientMessageCopyWithImpl<RotateCmdClientMessage>(
-          this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$RotateCmdClientMessageToJson(
-      this,
-    );
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is RotateCmdClientMessage &&
-            const DeepCollectionEquality()
-                .equals(other._rotations, _rotations));
-  }
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(_rotations));
-
-  @override
-  String toString() {
-    return 'RemoteToyClientMessage.rotateCmd(rotations: $rotations)';
-  }
-}
-
-/// @nodoc
-abstract mixin class $RotateCmdClientMessageCopyWith<$Res>
-    implements $RemoteToyClientMessageCopyWith<$Res> {
-  factory $RotateCmdClientMessageCopyWith(RotateCmdClientMessage value,
-          $Res Function(RotateCmdClientMessage) _then) =
-      _$RotateCmdClientMessageCopyWithImpl;
-  @useResult
-  $Res call({List<RotationSubcommand> rotations});
-}
-
-/// @nodoc
-class _$RotateCmdClientMessageCopyWithImpl<$Res>
-    implements $RotateCmdClientMessageCopyWith<$Res> {
-  _$RotateCmdClientMessageCopyWithImpl(this._self, this._then);
-
-  final RotateCmdClientMessage _self;
-  final $Res Function(RotateCmdClientMessage) _then;
-
-  /// Create a copy of RemoteToyClientMessage
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? rotations = null,
-  }) {
-    return _then(RotateCmdClientMessage(
-      rotations: null == rotations
-          ? _self._rotations
-          : rotations // ignore: cast_nullable_to_non_nullable
-              as List<RotationSubcommand>,
-    ));
-  }
-}
-
-/// @nodoc
-@JsonSerializable()
-@Deprecated('Will be deprecated after spec 4.0 is fully released')
-class SensorReadCmdClientMessage extends RemoteToyClientMessage {
-  const SensorReadCmdClientMessage(
-      {required this.featureIndex,
-      required this.inputType,
-      final String? $type})
-      : $type = $type ?? 'sensorReadCmd',
-        super._();
-  factory SensorReadCmdClientMessage.fromJson(Map<String, dynamic> json) =>
-      _$SensorReadCmdClientMessageFromJson(json);
-
-  final int featureIndex;
-  final InputType inputType;
-
-  @JsonKey(name: 'runtimeType')
-  final String $type;
-
-  /// Create a copy of RemoteToyClientMessage
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $SensorReadCmdClientMessageCopyWith<SensorReadCmdClientMessage>
-      get copyWith =>
-          _$SensorReadCmdClientMessageCopyWithImpl<SensorReadCmdClientMessage>(
-              this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$SensorReadCmdClientMessageToJson(
-      this,
-    );
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is SensorReadCmdClientMessage &&
-            (identical(other.featureIndex, featureIndex) ||
-                other.featureIndex == featureIndex) &&
-            (identical(other.inputType, inputType) ||
-                other.inputType == inputType));
-  }
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(runtimeType, featureIndex, inputType);
-
-  @override
-  String toString() {
-    return 'RemoteToyClientMessage.sensorReadCmd(featureIndex: $featureIndex, inputType: $inputType)';
-  }
-}
-
-/// @nodoc
-abstract mixin class $SensorReadCmdClientMessageCopyWith<$Res>
-    implements $RemoteToyClientMessageCopyWith<$Res> {
-  factory $SensorReadCmdClientMessageCopyWith(SensorReadCmdClientMessage value,
-          $Res Function(SensorReadCmdClientMessage) _then) =
-      _$SensorReadCmdClientMessageCopyWithImpl;
-  @useResult
-  $Res call({int featureIndex, InputType inputType});
-}
-
-/// @nodoc
-class _$SensorReadCmdClientMessageCopyWithImpl<$Res>
-    implements $SensorReadCmdClientMessageCopyWith<$Res> {
-  _$SensorReadCmdClientMessageCopyWithImpl(this._self, this._then);
-
-  final SensorReadCmdClientMessage _self;
-  final $Res Function(SensorReadCmdClientMessage) _then;
-
-  /// Create a copy of RemoteToyClientMessage
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? featureIndex = null,
-    Object? inputType = null,
-  }) {
-    return _then(SensorReadCmdClientMessage(
-      featureIndex: null == featureIndex
-          ? _self.featureIndex
-          : featureIndex // ignore: cast_nullable_to_non_nullable
-              as int,
-      inputType: null == inputType
-          ? _self.inputType
-          : inputType // ignore: cast_nullable_to_non_nullable
-              as InputType,
-    ));
-  }
 }
 
 /// @nodoc

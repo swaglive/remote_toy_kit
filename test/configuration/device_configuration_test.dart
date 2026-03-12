@@ -13,10 +13,10 @@ import 'package:remote_toy_kit/src/core/message/endpoint.dart';
 const _version = DeviceConfigurationVersion(major: 4, minor: 0);
 
 final _defaultFeatures = <DeviceFeature>[
-  DeviceFeature.v4(
+  const DeviceFeature(
     id: 'default-vibrate',
     index: 0,
-    output: const DeviceFeatureOutput(
+    output: DeviceFeatureOutput(
       vibrate: DeviceFeatureOutputValueProperties(
         value: RangeInclusive(start: 0, end: 20),
       ),
@@ -170,11 +170,11 @@ void main() {
   group('DeviceConfiguration.specifiers', () {
     test('extracts BLE specifiers from protocols with communication', () {
       // Arrange
-      final specifier = BluetoothLESpecifier(
+      const specifier = BluetoothLESpecifier(
         names: {'LVS-*'},
-        manufacturerData: const [],
-        advertisedServices: const {},
-        services: const {
+        manufacturerData: [],
+        advertisedServices: {},
+        services: {
           'service-uuid': {Endpoint.tx: 'char-tx', Endpoint.rx: 'char-rx'}
         },
       );

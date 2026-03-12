@@ -15,16 +15,16 @@ ProtocolAttributes _attributes({
 }) =>
     ProtocolAttributes(name: 'test-device', features: features);
 
-DeviceFeatureV4 _batteryFeature() => DeviceFeature.v4(
+DeviceFeature _batteryFeature() => const DeviceFeature(
       id: 'battery-0',
       index: 0,
-      input: const DeviceFeatureInput(
+      input: DeviceFeatureInput(
         battery: DeviceFeatureInputProperties(
           command: {InputCommandType.read},
           value: [RangeInclusive(start: 0, end: 100)],
         ),
       ),
-    ) as DeviceFeatureV4;
+    );
 
 void main() {
   group('CheckedInputCmd.tryFromDeviceAttributes', () {

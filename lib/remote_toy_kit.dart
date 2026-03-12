@@ -25,15 +25,8 @@ export 'src/remote_toy_device_feature.dart';
 /// ([RemoteToyKitWeb] or [RemoteToyKitMobile]) based on [kIsWeb].
 abstract interface class RemoteToyKit {
   /// Creates a platform-appropriate [RemoteToyKit] instance.
-  ///
-  /// Set [isSpecV4] to `true` to use the V4 device config spec,
-  /// or `false` for V3.
-  factory RemoteToyKit({required bool isSpecV4}) {
-    final DeviceConfigVersion deviceConfigVersion =
-        isSpecV4 ? DeviceConfigVersion.v4 : DeviceConfigVersion.v3;
-    return kIsWeb
-        ? RemoteToyKitWeb(deviceConfigVersion: deviceConfigVersion)
-        : RemoteToyKitMobile(deviceConfigVersion: deviceConfigVersion);
+  factory RemoteToyKit() {
+    return kIsWeb ? RemoteToyKitWeb() : RemoteToyKitMobile();
   }
 
   /// Initializes the SDK: sets up Bluetooth resources and loads the

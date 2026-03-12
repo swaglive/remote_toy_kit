@@ -20,7 +20,6 @@ class RemoteToyDeviceWebConnector implements RemoteToyDeviceConnector {
     required this.specifier,
     required this.protocolIdentifier,
     required this.protocols,
-    required this.isSpecV4,
   });
 
   /// Full device configuration including supported feature sets.
@@ -39,9 +38,6 @@ class RemoteToyDeviceWebConnector implements RemoteToyDeviceConnector {
   /// primary protocol identification fails.
   final Map<String, ProtocolIdentifierFactory> protocols;
 
-  /// Whether to use the V4 device config spec.
-  final bool isSpecV4;
-
   @override
   Future<RemoteToyDevice> connect() => ConnectToyWebTask(
         deviceConfiguration: deviceConfiguration,
@@ -49,6 +45,5 @@ class RemoteToyDeviceWebConnector implements RemoteToyDeviceConnector {
         specifier: specifier,
         protocolIdentifier: protocolIdentifier,
         protocols: protocols,
-        isSpecV4: isSpecV4,
       ).call();
 }

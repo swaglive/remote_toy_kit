@@ -32,7 +32,7 @@ sealed class RemoteToyDeviceFeature with _$RemoteToyDeviceFeature {
     required int featureIndex,
   }) {
     return _RemoteToyDeviceFeature(
-      featureIndex: feature.featureIndex ?? featureIndex,
+      featureIndex: feature.featureIndex,
       featureType: feature.featureType,
       feature: feature,
     );
@@ -84,18 +84,12 @@ sealed class RemoteToyDeviceFeature with _$RemoteToyDeviceFeature {
 
   /// Converts a [ClientDeviceOutputCommand] into a protocol-level [OutputCmd].
   ///
-  /// Only V4 [DeviceFeature]s are supported. Looks up the output limits
-  /// for the command's output type and validates the step value range.
+  /// Looks up the output limits for the command's output type and validates
+  /// the step value range.
   OutputCmd convertClientCmdtoOutputCmd(
       ClientDeviceOutputCommand clientCommand) {
-    // Only V4 is supported; V3 is not implemented
-    if (feature is DeviceFeatureV3) {
-      throw UnsupportedError('DeviceFeatureV3 is not supported');
-    }
-
     final outputType = clientCommand.outputType;
-    final output =
-        (feature as DeviceFeatureV4).output?.outputLimits(outputType);
+    final output = feature.output?.outputLimits(outputType);
     if (output == null) {
       throw UnsupportedError('Output type $outputType is not supported');
     }
