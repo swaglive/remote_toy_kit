@@ -1,3 +1,10 @@
+## v0.4.0
+
+### Refactoring
+- remove spec v3 support and make v4 the sole protocol version (#27)
+
+
+
 ## v0.3.0
 
 ### Features
