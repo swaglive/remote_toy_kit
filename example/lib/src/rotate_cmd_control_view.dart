@@ -37,37 +37,22 @@ class _RotateCmdControlViewState extends State<RotateCmdControlView> {
         .listen((event) {
       final (value, clockwise) = event;
 
-      if (widget.clientDeviceFeature.feature is DeviceFeatureV4) {
-        // Convert value, if clockwise is true, value is positive, otherwise negative
-        final convertedValue = clockwise ? value : -value;
+      // Convert value: if clockwise is true, value is positive, otherwise negative
+      final convertedValue = clockwise ? value : -value;
 
-        // Generate client output command
-        final clientOutputCommand = ClientDeviceOutputCommand.tryFrom(
-            widget.outputType,
-            ClientDeviceCommandValue.fromDouble(value: convertedValue));
-        if (clientOutputCommand == null) {
-          return;
-        }
-
-        // Generate output cmd
-        final OutputCmd outputCmd = widget.clientDeviceFeature
-            .convertClientCmdtoOutputCmd(clientOutputCommand);
-
-        // Execute command
-        _device?.executeCommand(
-          message: OutputCmdClientMessage(command: outputCmd),
-        );
-      } else if (widget.clientDeviceFeature.feature is DeviceFeatureV3) {
-        _device?.executeCommand(
-          message: RotateCmdClientMessage(rotations: [
-            RotationSubcommand(
-              featureIndex: widget.featureIndex,
-              speed: value,
-              clockwise: clockwise,
-            ),
-          ]),
-        );
+      final clientOutputCommand = ClientDeviceOutputCommand.tryFrom(
+          widget.outputType,
+          ClientDeviceCommandValue.fromDouble(value: convertedValue));
+      if (clientOutputCommand == null) {
+        return;
       }
+
+      final OutputCmd outputCmd = widget.clientDeviceFeature
+          .convertClientCmdtoOutputCmd(clientOutputCommand);
+
+      _device?.executeCommand(
+        message: OutputCmdClientMessage(command: outputCmd),
+      );
     });
     super.initState();
   }

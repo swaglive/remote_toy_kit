@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:remote_toy_kit/remote_toy_kit.dart';
-import 'package:remote_toy_kit_example/src/linear_cmd_control_view.dart';
 import 'package:remote_toy_kit_example/src/rotate_cmd_control_view.dart';
 import 'package:remote_toy_kit_example/src/scalar_cmd_control_view.dart';
 import 'package:remote_toy_kit_example/src/sensor_read_cmd_control_view.dart';
@@ -21,57 +20,28 @@ class FeaturePanel extends StatelessWidget {
         OutputType.tryFrom(value: clientDeviceFeature.featureType);
     List<Widget> views = [];
     if (outputType != null) {
-      if (clientDeviceFeature.feature is DeviceFeatureV4) {
-        final feature = clientDeviceFeature.feature as DeviceFeatureV4;
-        views.addAll(feature.output?.outputTypes.map((e) {
-              switch (e) {
-                case OutputType.vibrate:
-                case OutputType.oscillate:
-                case OutputType.constrict:
-                  return ScalarCmdControlView(
-                    featureIndex: featureIndex,
-                    clientDeviceFeature: clientDeviceFeature,
-                    outputType: e,
-                  );
-                case OutputType.rotate:
-                  return RotateCmdControlView(
-                    featureIndex: featureIndex,
-                    clientDeviceFeature: clientDeviceFeature,
-                    outputType: e,
-                  );
-                default:
-                  return const SizedBox.shrink();
-              }
-            }) ??
-            []);
-      } else if (clientDeviceFeature.feature is DeviceFeatureV3) {
-        final feature = clientDeviceFeature.feature as DeviceFeatureV3;
-        views.addAll(
-            (feature.actuator?.messages ?? <ActuatorFeatureMessageType>[])
-                .indexed
-                .map((e) {
-          final (index, messageType) = e;
-          switch (messageType) {
-            case ActuatorFeatureMessageType.scalarCmd:
-              return ScalarCmdControlView(
-                featureIndex: featureIndex,
-                clientDeviceFeature: clientDeviceFeature,
-                outputType: outputType,
-              );
-            case ActuatorFeatureMessageType.rotateCmd:
-              return RotateCmdControlView(
-                featureIndex: featureIndex,
-                clientDeviceFeature: clientDeviceFeature,
-                outputType: outputType,
-              );
-            case ActuatorFeatureMessageType.linearCmd:
-              return LinearCmdControlView(
-                featureIndex: featureIndex,
-                stepRange: feature.outputValueRange,
-              );
-          }
-        }));
-      }
+      final feature = clientDeviceFeature.feature;
+      views.addAll(feature.output?.outputTypes.map((e) {
+            switch (e) {
+              case OutputType.vibrate:
+              case OutputType.oscillate:
+              case OutputType.constrict:
+                return ScalarCmdControlView(
+                  featureIndex: featureIndex,
+                  clientDeviceFeature: clientDeviceFeature,
+                  outputType: e,
+                );
+              case OutputType.rotate:
+                return RotateCmdControlView(
+                  featureIndex: featureIndex,
+                  clientDeviceFeature: clientDeviceFeature,
+                  outputType: e,
+                );
+              default:
+                return const SizedBox.shrink();
+            }
+          }) ??
+          []);
     }
     final inputType = InputType.tryFrom(type: clientDeviceFeature.featureType);
     if (inputType != null) {

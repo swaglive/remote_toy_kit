@@ -19,7 +19,6 @@ class RemoteToyDeviceMobileConnector implements RemoteToyDeviceConnector {
     required this.device,
     required this.specifier,
     required this.protocolIdentifier,
-    required this.isSpecV4,
   });
 
   /// Full device configuration including supported feature sets.
@@ -34,15 +33,11 @@ class RemoteToyDeviceMobileConnector implements RemoteToyDeviceConnector {
   /// Identifies the device model and creates the appropriate [ProtocolHandler].
   final ProtocolIdentifier protocolIdentifier;
 
-  /// Whether to use the V4 device config spec.
-  final bool isSpecV4;
-
   @override
   Future<RemoteToyDevice> connect() => ConnectToyMobileTask(
         deviceConfiguration: deviceConfiguration,
         device: device,
         specifier: specifier,
         protocolIdentifier: protocolIdentifier,
-        isSpecV4: isSpecV4,
       ).call();
 }

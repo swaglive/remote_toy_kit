@@ -48,25 +48,15 @@ class _SensorReadCmdControlViewState extends State<SensorReadCmdControlView> {
         children: [
           TextButton(
             onPressed: () {
-              if (widget.clientDeviceFeature.feature is DeviceFeatureV4) {
-                _device?.executeCommand(
-                  message: RemoteToyClientMessage.inputCmd(
-                    command: InputCmdV4(
-                      featureIndex: widget.featureIndex,
-                      inputType: widget.inputType,
-                      inputCommandType: InputCommandType.read,
-                    ),
-                  ),
-                );
-              } else if (widget.clientDeviceFeature.feature
-                  is DeviceFeatureV3) {
-                _device?.executeCommand(
-                  message: SensorReadCmdClientMessage(
+              _device?.executeCommand(
+                message: RemoteToyClientMessage.inputCmd(
+                  command: InputCmdV4(
                     featureIndex: widget.featureIndex,
                     inputType: widget.inputType,
+                    inputCommandType: InputCommandType.read,
                   ),
-                );
-              }
+                ),
+              );
             },
             child: const Text('Read Sensor'),
           ),

@@ -47,11 +47,7 @@ class SvakomV5Initializer implements ProtocolInitializer {
   Future<ProtocolHandler> initialize({
     required Hardware hardware,
     required ProtocolAttributes protocolAttributes,
-    required bool isSpecV4,
   }) async {
-    if (!isSpecV4) {
-      logger.w('Svakom V5 expects spec v4 device configuration');
-    }
     return SvakomV5();
   }
 }
@@ -83,23 +79,6 @@ class SvakomV5 extends ProtocolHandler {
     required int speed,
   }) {
     return _buildOscillateCommand(speed);
-  }
-
-  @override
-  List<HardwareCmd> handleScalarVibrateCmd({
-    required int index,
-    required int scalar,
-  }) {
-    _setVibeSpeed(index, scalar);
-    return _buildVibeCommand();
-  }
-
-  @override
-  List<HardwareCmd> handleScalarOscillateCmd({
-    required int index,
-    required int scalar,
-  }) {
-    return _buildOscillateCommand(scalar);
   }
 
   void _setVibeSpeed(int index, int speed) {

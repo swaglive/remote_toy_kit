@@ -6,7 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:remote_toy_kit/src/configuration/configuration.dart';
 import 'package:remote_toy_kit/src/core/hardware/hardware.dart';
 import 'package:remote_toy_kit/src/core/message/message.dart';
-import 'package:remote_toy_kit/src/core/protocol/keepalive_strategy.dart';
 import 'package:remote_toy_kit/src/core/protocol/protocol.dart';
 import 'package:remote_toy_kit/src/remote_toy_device.dart';
 
@@ -69,7 +68,7 @@ class _NoKeepaliveHandler extends ProtocolHandler {
 ProtocolAttributes _attrs({int outputs = 1}) {
   final features = List<DeviceFeature>.generate(
     outputs,
-    (i) => DeviceFeature.v4(
+    (i) => DeviceFeature(
       id: 'f-$i',
       index: i,
       output: const DeviceFeatureOutput(
@@ -146,11 +145,11 @@ void main() {
       hardware.writes.clear();
 
       await device.executeCommand(
-        message: OutputCmdClientMessage(
+        message: const OutputCmdClientMessage(
           command: OutputCmd.v4(
             featureIndex: 0,
             command: OutputCommand.vibrate(
-              outputValue: const OutputValue(value: 50),
+              outputValue: OutputValue(value: 50),
             ),
           ),
         ),
@@ -189,11 +188,11 @@ void main() {
         // Write at 500ms — well within the 1s keepalive window
         async.elapse(const Duration(milliseconds: 500));
         device.executeCommand(
-          message: OutputCmdClientMessage(
+          message: const OutputCmdClientMessage(
             command: OutputCmd.v4(
               featureIndex: 0,
               command: OutputCommand.vibrate(
-                outputValue: const OutputValue(value: 80),
+                outputValue: OutputValue(value: 80),
               ),
             ),
           ),

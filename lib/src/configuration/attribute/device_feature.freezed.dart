@@ -14,8 +14,11 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$DeviceFeature {
-  @JsonKey(defaultValue: '')
   String get description;
+  String get id;
+  int get index;
+  DeviceFeatureOutput? get output;
+  DeviceFeatureInput? get input;
 
   /// Create a copy of DeviceFeature
   /// with the given fields replaced by the non-null parameter values.
@@ -31,15 +34,20 @@ mixin _$DeviceFeature {
         (other.runtimeType == runtimeType &&
             other is DeviceFeature &&
             (identical(other.description, description) ||
-                other.description == description));
+                other.description == description) &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.index, index) || other.index == index) &&
+            (identical(other.output, output) || other.output == output) &&
+            (identical(other.input, input) || other.input == input));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, description);
+  int get hashCode =>
+      Object.hash(runtimeType, description, id, index, output, input);
 
   @override
   String toString() {
-    return 'DeviceFeature(description: $description)';
+    return 'DeviceFeature(description: $description, id: $id, index: $index, output: $output, input: $input)';
   }
 }
 
@@ -49,7 +57,15 @@ abstract mixin class $DeviceFeatureCopyWith<$Res> {
           DeviceFeature value, $Res Function(DeviceFeature) _then) =
       _$DeviceFeatureCopyWithImpl;
   @useResult
-  $Res call({@JsonKey(defaultValue: '') String description});
+  $Res call(
+      {String description,
+      String id,
+      int index,
+      DeviceFeatureOutput? output,
+      DeviceFeatureInput? input});
+
+  $DeviceFeatureOutputCopyWith<$Res>? get output;
+  $DeviceFeatureInputCopyWith<$Res>? get input;
 }
 
 /// @nodoc
@@ -66,13 +82,61 @@ class _$DeviceFeatureCopyWithImpl<$Res>
   @override
   $Res call({
     Object? description = null,
+    Object? id = null,
+    Object? index = null,
+    Object? output = freezed,
+    Object? input = freezed,
   }) {
     return _then(_self.copyWith(
       description: null == description
           ? _self.description
           : description // ignore: cast_nullable_to_non_nullable
               as String,
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      index: null == index
+          ? _self.index
+          : index // ignore: cast_nullable_to_non_nullable
+              as int,
+      output: freezed == output
+          ? _self.output
+          : output // ignore: cast_nullable_to_non_nullable
+              as DeviceFeatureOutput?,
+      input: freezed == input
+          ? _self.input
+          : input // ignore: cast_nullable_to_non_nullable
+              as DeviceFeatureInput?,
     ));
+  }
+
+  /// Create a copy of DeviceFeature
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $DeviceFeatureOutputCopyWith<$Res>? get output {
+    if (_self.output == null) {
+      return null;
+    }
+
+    return $DeviceFeatureOutputCopyWith<$Res>(_self.output!, (value) {
+      return _then(_self.copyWith(output: value));
+    });
+  }
+
+  /// Create a copy of DeviceFeature
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $DeviceFeatureInputCopyWith<$Res>? get input {
+    if (_self.input == null) {
+      return null;
+    }
+
+    return $DeviceFeatureInputCopyWith<$Res>(_self.input!, (value) {
+      return _then(_self.copyWith(input: value));
+    });
   }
 }
 
@@ -91,17 +155,14 @@ extension DeviceFeaturePatterns on DeviceFeature {
   /// ```
 
   @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(DeviceFeatureV3 value)? v3,
-    TResult Function(DeviceFeatureV4 value)? v4,
+  TResult maybeMap<TResult extends Object?>(
+    TResult Function(_DeviceFeature value)? $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case DeviceFeatureV3() when v3 != null:
-        return v3(_that);
-      case DeviceFeatureV4() when v4 != null:
-        return v4(_that);
+      case _DeviceFeature() when $default != null:
+        return $default(_that);
       case _:
         return orElse();
     }
@@ -121,16 +182,13 @@ extension DeviceFeaturePatterns on DeviceFeature {
   /// ```
 
   @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(DeviceFeatureV3 value) v3,
-    required TResult Function(DeviceFeatureV4 value) v4,
-  }) {
+  TResult map<TResult extends Object?>(
+    TResult Function(_DeviceFeature value) $default,
+  ) {
     final _that = this;
     switch (_that) {
-      case DeviceFeatureV3():
-        return v3(_that);
-      case DeviceFeatureV4():
-        return v4(_that);
+      case _DeviceFeature():
+        return $default(_that);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -149,16 +207,13 @@ extension DeviceFeaturePatterns on DeviceFeature {
   /// ```
 
   @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(DeviceFeatureV3 value)? v3,
-    TResult? Function(DeviceFeatureV4 value)? v4,
-  }) {
+  TResult? mapOrNull<TResult extends Object?>(
+    TResult? Function(_DeviceFeature value)? $default,
+  ) {
     final _that = this;
     switch (_that) {
-      case DeviceFeatureV3() when v3 != null:
-        return v3(_that);
-      case DeviceFeatureV4() when v4 != null:
-        return v4(_that);
+      case _DeviceFeature() when $default != null:
+        return $default(_that);
       case _:
         return null;
     }
@@ -177,25 +232,16 @@ extension DeviceFeaturePatterns on DeviceFeature {
   /// ```
 
   @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(
-            @JsonKey(defaultValue: '') String description,
-            @JsonKey(name: 'feature-type') FeatureType featureType,
-            DeviceFeatureActuator? actuator,
-            DeviceFeatureSensor? sensor)?
-        v3,
+  TResult maybeWhen<TResult extends Object?>(
     TResult Function(String description, String id, int index,
             DeviceFeatureOutput? output, DeviceFeatureInput? input)?
-        v4,
+        $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case DeviceFeatureV3() when v3 != null:
-        return v3(
-            _that.description, _that.featureType, _that.actuator, _that.sensor);
-      case DeviceFeatureV4() when v4 != null:
-        return v4(_that.description, _that.id, _that.index, _that.output,
+      case _DeviceFeature() when $default != null:
+        return $default(_that.description, _that.id, _that.index, _that.output,
             _that.input);
       case _:
         return orElse();
@@ -216,24 +262,15 @@ extension DeviceFeaturePatterns on DeviceFeature {
   /// ```
 
   @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(
-            @JsonKey(defaultValue: '') String description,
-            @JsonKey(name: 'feature-type') FeatureType featureType,
-            DeviceFeatureActuator? actuator,
-            DeviceFeatureSensor? sensor)
-        v3,
-    required TResult Function(String description, String id, int index,
+  TResult when<TResult extends Object?>(
+    TResult Function(String description, String id, int index,
             DeviceFeatureOutput? output, DeviceFeatureInput? input)
-        v4,
-  }) {
+        $default,
+  ) {
     final _that = this;
     switch (_that) {
-      case DeviceFeatureV3():
-        return v3(
-            _that.description, _that.featureType, _that.actuator, _that.sensor);
-      case DeviceFeatureV4():
-        return v4(_that.description, _that.id, _that.index, _that.output,
+      case _DeviceFeature():
+        return $default(_that.description, _that.id, _that.index, _that.output,
             _that.input);
       case _:
         throw StateError('Unexpected subclass');
@@ -253,24 +290,15 @@ extension DeviceFeaturePatterns on DeviceFeature {
   /// ```
 
   @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(
-            @JsonKey(defaultValue: '') String description,
-            @JsonKey(name: 'feature-type') FeatureType featureType,
-            DeviceFeatureActuator? actuator,
-            DeviceFeatureSensor? sensor)?
-        v3,
+  TResult? whenOrNull<TResult extends Object?>(
     TResult? Function(String description, String id, int index,
             DeviceFeatureOutput? output, DeviceFeatureInput? input)?
-        v4,
-  }) {
+        $default,
+  ) {
     final _that = this;
     switch (_that) {
-      case DeviceFeatureV3() when v3 != null:
-        return v3(
-            _that.description, _that.featureType, _that.actuator, _that.sensor);
-      case DeviceFeatureV4() when v4 != null:
-        return v4(_that.description, _that.id, _that.index, _that.output,
+      case _DeviceFeature() when $default != null:
+        return $default(_that.description, _that.id, _that.index, _that.output,
             _that.input);
       case _:
         return null;
@@ -280,144 +308,8 @@ extension DeviceFeaturePatterns on DeviceFeature {
 
 /// @nodoc
 
-@Deprecated('Will be deprecated after spec 4.0 is fully released')
-class DeviceFeatureV3 extends DeviceFeature {
-  const DeviceFeatureV3(
-      {@JsonKey(defaultValue: '') this.description = '',
-      @JsonKey(name: 'feature-type') required this.featureType,
-      this.actuator,
-      this.sensor})
-      : super._();
-
-  @override
-  @JsonKey(defaultValue: '')
-  final String description;
-  @JsonKey(name: 'feature-type')
-  final FeatureType featureType;
-  final DeviceFeatureActuator? actuator;
-  final DeviceFeatureSensor? sensor;
-
-  /// Create a copy of DeviceFeature
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $DeviceFeatureV3CopyWith<DeviceFeatureV3> get copyWith =>
-      _$DeviceFeatureV3CopyWithImpl<DeviceFeatureV3>(this, _$identity);
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is DeviceFeatureV3 &&
-            (identical(other.description, description) ||
-                other.description == description) &&
-            (identical(other.featureType, featureType) ||
-                other.featureType == featureType) &&
-            (identical(other.actuator, actuator) ||
-                other.actuator == actuator) &&
-            (identical(other.sensor, sensor) || other.sensor == sensor));
-  }
-
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, description, featureType, actuator, sensor);
-
-  @override
-  String toString() {
-    return 'DeviceFeature.v3(description: $description, featureType: $featureType, actuator: $actuator, sensor: $sensor)';
-  }
-}
-
-/// @nodoc
-abstract mixin class $DeviceFeatureV3CopyWith<$Res>
-    implements $DeviceFeatureCopyWith<$Res> {
-  factory $DeviceFeatureV3CopyWith(
-          DeviceFeatureV3 value, $Res Function(DeviceFeatureV3) _then) =
-      _$DeviceFeatureV3CopyWithImpl;
-  @override
-  @useResult
-  $Res call(
-      {@JsonKey(defaultValue: '') String description,
-      @JsonKey(name: 'feature-type') FeatureType featureType,
-      DeviceFeatureActuator? actuator,
-      DeviceFeatureSensor? sensor});
-
-  $DeviceFeatureActuatorCopyWith<$Res>? get actuator;
-  $DeviceFeatureSensorCopyWith<$Res>? get sensor;
-}
-
-/// @nodoc
-class _$DeviceFeatureV3CopyWithImpl<$Res>
-    implements $DeviceFeatureV3CopyWith<$Res> {
-  _$DeviceFeatureV3CopyWithImpl(this._self, this._then);
-
-  final DeviceFeatureV3 _self;
-  final $Res Function(DeviceFeatureV3) _then;
-
-  /// Create a copy of DeviceFeature
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? description = null,
-    Object? featureType = null,
-    Object? actuator = freezed,
-    Object? sensor = freezed,
-  }) {
-    return _then(DeviceFeatureV3(
-      description: null == description
-          ? _self.description
-          : description // ignore: cast_nullable_to_non_nullable
-              as String,
-      featureType: null == featureType
-          ? _self.featureType
-          : featureType // ignore: cast_nullable_to_non_nullable
-              as FeatureType,
-      actuator: freezed == actuator
-          ? _self.actuator
-          : actuator // ignore: cast_nullable_to_non_nullable
-              as DeviceFeatureActuator?,
-      sensor: freezed == sensor
-          ? _self.sensor
-          : sensor // ignore: cast_nullable_to_non_nullable
-              as DeviceFeatureSensor?,
-    ));
-  }
-
-  /// Create a copy of DeviceFeature
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $DeviceFeatureActuatorCopyWith<$Res>? get actuator {
-    if (_self.actuator == null) {
-      return null;
-    }
-
-    return $DeviceFeatureActuatorCopyWith<$Res>(_self.actuator!, (value) {
-      return _then(_self.copyWith(actuator: value));
-    });
-  }
-
-  /// Create a copy of DeviceFeature
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $DeviceFeatureSensorCopyWith<$Res>? get sensor {
-    if (_self.sensor == null) {
-      return null;
-    }
-
-    return $DeviceFeatureSensorCopyWith<$Res>(_self.sensor!, (value) {
-      return _then(_self.copyWith(sensor: value));
-    });
-  }
-}
-
-/// @nodoc
-
-class DeviceFeatureV4 extends DeviceFeature {
-  const DeviceFeatureV4(
+class _DeviceFeature extends DeviceFeature {
+  const _DeviceFeature(
       {this.description = '',
       required this.id,
       required this.index,
@@ -428,9 +320,13 @@ class DeviceFeatureV4 extends DeviceFeature {
   @override
   @JsonKey()
   final String description;
+  @override
   final String id;
+  @override
   final int index;
+  @override
   final DeviceFeatureOutput? output;
+  @override
   final DeviceFeatureInput? input;
 
   /// Create a copy of DeviceFeature
@@ -438,14 +334,14 @@ class DeviceFeatureV4 extends DeviceFeature {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  $DeviceFeatureV4CopyWith<DeviceFeatureV4> get copyWith =>
-      _$DeviceFeatureV4CopyWithImpl<DeviceFeatureV4>(this, _$identity);
+  _$DeviceFeatureCopyWith<_DeviceFeature> get copyWith =>
+      __$DeviceFeatureCopyWithImpl<_DeviceFeature>(this, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is DeviceFeatureV4 &&
+            other is _DeviceFeature &&
             (identical(other.description, description) ||
                 other.description == description) &&
             (identical(other.id, id) || other.id == id) &&
@@ -460,16 +356,16 @@ class DeviceFeatureV4 extends DeviceFeature {
 
   @override
   String toString() {
-    return 'DeviceFeature.v4(description: $description, id: $id, index: $index, output: $output, input: $input)';
+    return 'DeviceFeature(description: $description, id: $id, index: $index, output: $output, input: $input)';
   }
 }
 
 /// @nodoc
-abstract mixin class $DeviceFeatureV4CopyWith<$Res>
+abstract mixin class _$DeviceFeatureCopyWith<$Res>
     implements $DeviceFeatureCopyWith<$Res> {
-  factory $DeviceFeatureV4CopyWith(
-          DeviceFeatureV4 value, $Res Function(DeviceFeatureV4) _then) =
-      _$DeviceFeatureV4CopyWithImpl;
+  factory _$DeviceFeatureCopyWith(
+          _DeviceFeature value, $Res Function(_DeviceFeature) _then) =
+      __$DeviceFeatureCopyWithImpl;
   @override
   @useResult
   $Res call(
@@ -479,17 +375,19 @@ abstract mixin class $DeviceFeatureV4CopyWith<$Res>
       DeviceFeatureOutput? output,
       DeviceFeatureInput? input});
 
+  @override
   $DeviceFeatureOutputCopyWith<$Res>? get output;
+  @override
   $DeviceFeatureInputCopyWith<$Res>? get input;
 }
 
 /// @nodoc
-class _$DeviceFeatureV4CopyWithImpl<$Res>
-    implements $DeviceFeatureV4CopyWith<$Res> {
-  _$DeviceFeatureV4CopyWithImpl(this._self, this._then);
+class __$DeviceFeatureCopyWithImpl<$Res>
+    implements _$DeviceFeatureCopyWith<$Res> {
+  __$DeviceFeatureCopyWithImpl(this._self, this._then);
 
-  final DeviceFeatureV4 _self;
-  final $Res Function(DeviceFeatureV4) _then;
+  final _DeviceFeature _self;
+  final $Res Function(_DeviceFeature) _then;
 
   /// Create a copy of DeviceFeature
   /// with the given fields replaced by the non-null parameter values.
@@ -502,7 +400,7 @@ class _$DeviceFeatureV4CopyWithImpl<$Res>
     Object? output = freezed,
     Object? input = freezed,
   }) {
-    return _then(DeviceFeatureV4(
+    return _then(_DeviceFeature(
       description: null == description
           ? _self.description
           : description // ignore: cast_nullable_to_non_nullable

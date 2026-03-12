@@ -6,13 +6,9 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'device_configuration.dart';
 
-export 'attribute/actuator_feature_message_type.dart';
 export 'attribute/device_feature.dart';
-export 'attribute/device_feature_actuator.dart';
-export 'attribute/device_feature_sensor.dart';
 export 'attribute/protocol_attributes.dart';
 export 'attribute/range_inclusive.dart';
-export 'attribute/sensor_feature_message_type.dart';
 export 'attribute/device_feature_output.dart';
 export 'attribute/device_feature_input.dart';
 export 'attribute/device_feature_output_properties.dart';
@@ -26,29 +22,12 @@ export 'device_configuration.dart';
 export 'device_configuration_version.dart';
 export 'protocol_definition.dart';
 
-/// Buttplug device configuration spec version.
-enum DeviceConfigVersion {
-  /// Buttplug spec v3 - legacy version
-  @Deprecated('Will be deprecated after spec 4.0 is fully released')
-  v3('packages/remote_toy_kit/assets/buttplug-device-config-v3.json'),
-
-  /// Buttplug spec v4 - latest version
-  v4('packages/remote_toy_kit/assets/buttplug-device-config-v4.json');
-
-  const DeviceConfigVersion(this.assetPath);
-
-  /// The asset path for this config version.
-  final String assetPath;
-}
+/// The asset path for the Buttplug v4 device configuration.
+const String _deviceConfigAssetPath =
+    'packages/remote_toy_kit/assets/buttplug-device-config-v4.json';
 
 /// Loads the device configuration from the bundled JSON asset.
-///
-/// [deviceConfigVersion] specifies which Buttplug spec version to load.
-Future<DeviceConfiguration> loadDeviceConfiguration({
-  // !!IMPORTANT: DO NOT CHANGE THIS DEFAULT VALUE until v4 migration is completed.
-  required DeviceConfigVersion deviceConfigVersion,
-}) async {
-  final configurationFile =
-      await rootBundle.loadString(deviceConfigVersion.assetPath);
+Future<DeviceConfiguration> loadDeviceConfiguration() async {
+  final configurationFile = await rootBundle.loadString(_deviceConfigAssetPath);
   return DeviceConfiguration.fromJson(jsonDecode(configurationFile));
 }

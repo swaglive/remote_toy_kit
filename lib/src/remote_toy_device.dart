@@ -112,7 +112,6 @@ class RemoteToyDevice {
     if (strategy is! ProtocolKeepaliveStrategyRepeatLastPacket) return;
 
     // Send a seed packet through the normal path so _lastWriteCmd is populated.
-    // This mirrors the buttplug SDK's stop-on-connect approach.
     final seedCmds = _protocolHandler.buildKeepalive();
     if (seedCmds.isNotEmpty) {
       _handleHardwareCommands(commands: seedCmds);
@@ -173,26 +172,6 @@ class RemoteToyDevice {
     await _hardware.disconnect();
   }
 
-  /// Checks whether the given message is supported by the device's feature set.
-  bool _supportsMessage(RemoteToyClientMessage message) {
-    bool checkMessage(RemoteToyClientMessageType type) =>
-        _protocolAttributes.isAllowedMessage(messageType: message.type);
-    return switch (message) {
-      // Universal commands — always allowed regardless of the feature set
-      StopDeviceCmdClientMessage() => true,
-      StopAllDevicesClientMessage() => true,
-      OutputCmdClientMessage() => true,
-      InputCmdClientMessage() => true,
-      ScalarCmdClientMessage() ||
-      LinearCmdClientMessage() ||
-      RotateCmdClientMessage() ||
-      SensorReadCmdClientMessage() ||
-      SensorSubscribeCmdClientMessage() ||
-      SensorUnsubscribeCmdClientMessage() =>
-        checkMessage(message.type),
-    };
-  }
-
   /// Executes a device command described by [message].
   ///
   /// Throws [RemoteToyDeviceException] if the message is unsupported, fails
@@ -200,14 +179,6 @@ class RemoteToyDevice {
   Future<RemoteToyServerMessage> executeCommand({
     required RemoteToyClientMessage message,
   }) async {
-    if (!_supportsMessage(message)) {
-      throw RemoteToyDeviceException(
-        code: RemoteToyDeviceException.codeCommandNotSupported,
-        message:
-            'Command message (${message.type.name}) not allowed by this protocol(${_protocolHandler.runtimeType})',
-      );
-    }
-
     // Let the protocol handler intercept all commands if it declares support
     if (_protocolHandler.hasHandleMessage) {
       final List<HardwareCmd> hardwareCmds =
@@ -220,20 +191,10 @@ class RemoteToyDevice {
         return _handleStopDeviceCmd(message: message);
       case StopAllDevicesClientMessage():
         return _handleStopAllDevicesCmd(message: message);
-      case SensorReadCmdClientMessage():
-        return _handleSensorReadCmd(message: message);
       case SensorSubscribeCmdClientMessage():
         return _handleSensorSubscribeCmd(message: message);
       case SensorUnsubscribeCmdClientMessage():
         return _handleSensorUnsubscribeCmd(message: message);
-      case ScalarCmdClientMessage():
-        return _handleScalarCmd(message: message);
-      case RotateCmdClientMessage():
-        return _handleRotateCmd(message: message);
-      case LinearCmdClientMessage():
-        return _handleHardwareCommands(
-          commands: _protocolHandler.handleLinearCmd(message: message),
-        );
       case OutputCmdClientMessage():
         return _handleOutputCmd(message: message);
       case InputCmdClientMessage():
@@ -256,73 +217,6 @@ class RemoteToyDevice {
     required StopAllDevicesClientMessage message,
   }) async {
     throw UnimplementedError('StopAllDevicesCmd is not implemented yet');
-  }
-
-  Future<RemoteToyServerMessage> _handleScalarCmd({
-    required ScalarCmdClientMessage message,
-  }) async {
-    if (message.scalars.isEmpty) {
-      throw RemoteToyDeviceException(
-        code: RemoteToyDeviceException.codeCommandPayloadInvalid,
-        message: 'ScalarCmd with no subcommands is not valid.',
-        details: message.toJson(),
-      );
-    }
-    for (final command in message.scalars) {
-      final List<DeviceFeature> features = _protocolAttributes.features ?? [];
-      final int featureCount = features.length;
-      final int featureIndex = command.featureIndex;
-      if (featureIndex > featureCount) {
-        throw RemoteToyDeviceException(
-          code: RemoteToyDeviceException.codeCommandFeatureIndexError,
-          message: RemoteToyDeviceException.getFeatureIndexErrorMessage(
-            count: featureCount,
-            index: featureIndex,
-          ),
-          details: message.toJson(),
-        );
-      }
-      final FeatureType featureType = features[featureIndex].featureType;
-      if (OutputType.tryFrom(value: featureType) != command.outputType) {
-        throw RemoteToyDeviceException(
-          code: RemoteToyDeviceException.codeCommandFeatureTypeMismatch,
-          message: RemoteToyDeviceException.getFeatureMismatchErrorMessage(
-            index: featureIndex,
-            actualType: featureType,
-            expectType: command.outputType,
-          ),
-          details: message.toJson(),
-        );
-      }
-    }
-
-    // Convert command message into actuator values: (OutputType, value)
-    final List<(OutputType, int)?> commands =
-        _actuatorCommandManager.updateScalar(
-      msg: message,
-      matchAll: _protocolHandler.needsFullCommandSet,
-    );
-
-    if (commands.isEmpty || commands.whereType<(OutputType, int)>().isEmpty) {
-      logger.d(
-          'No commands generated for incoming device packet, skipping and returning success.');
-      return const RemoteToyServerMessage.empty();
-    }
-    return _handleHardwareCommands(
-      commands: _protocolHandler.handleScalarCmd(cmds: commands),
-    );
-  }
-
-  Future<RemoteToyServerMessage> _handleRotateCmd({
-    required RotateCmdClientMessage message,
-  }) async {
-    // Convert command message into rotation values: (speed, clockwise)
-    final List<(int, bool)?> commands = _actuatorCommandManager.updateRotation(
-      msg: message,
-      matchAll: _protocolHandler.needsFullCommandSet,
-    );
-    return _handleHardwareCommands(
-        commands: _protocolHandler.handleRotateCmd(cmds: commands));
   }
 
   void _checkSensorCommand({
@@ -353,19 +247,6 @@ class RemoteToyDevice {
         ),
       );
     }
-  }
-
-  Future<RemoteToyServerMessage> _handleSensorReadCmd({
-    required SensorReadCmdClientMessage message,
-  }) async {
-    _checkSensorCommand(
-      featureIndex: message.featureIndex,
-      inputType: message.inputType,
-    );
-    return _protocolHandler.handleSensorReadCmd(
-      hardware: _hardware,
-      message: message,
-    );
   }
 
   Future<RemoteToyServerMessage> _handleSensorSubscribeCmd({
@@ -424,13 +305,11 @@ class RemoteToyDevice {
   }) async {
     final OutputCmd outputCmd = message.command;
 
-    // Convert to CheckedOutputCmd
     final checkedCommand = CheckedOutputCmd.tryFromDeviceAttributes(
       outputCmd,
       _protocolAttributes,
     );
 
-    // Execute command
     return _handleHardwareCommands(
         commands: _protocolHandler.handleOutputCmd(command: checkedCommand));
   }
@@ -440,13 +319,11 @@ class RemoteToyDevice {
   }) async {
     final inputCmd = message.command;
 
-    // Convert to CheckedInputCmd
     final checkedCommand = CheckedInputCmd.tryFromDeviceAttributes(
       inputCmd,
       _protocolAttributes,
     );
 
-    // Execute command
     return _protocolHandler.handleInputCmd(
         hardware: _hardware, command: checkedCommand);
   }

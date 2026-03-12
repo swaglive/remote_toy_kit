@@ -1,13 +1,12 @@
 # Remote Toy Kit
 
-A Flutter/Dart SDK for discovering, connecting to, and controlling BLE remote-toy devices. Supports both **mobile** (iOS / Android via Flutter Blue Plus) and **web** (via Web Bluetooth) platforms. Ported from the [Buttplug](https://buttplug.io) protocol with support for V3 and V4 device config specs.
+A Flutter/Dart SDK for discovering, connecting to, and controlling BLE remote-toy devices. Supports both **mobile** (iOS / Android via Flutter Blue Plus) and **web** (via Web Bluetooth) platforms. Ported from the [Buttplug](https://buttplug.io) protocol.
 
 ## Features
 
 - Cross-platform BLE communication (mobile + web)
 - Automatic platform selection via factory constructor
 - Stream-based device discovery
-- V3 and V4 device configuration specs
 - Output commands: vibrate, rotate, oscillate, constrict, position, LED, spray, temperature
 - Input commands: battery, RSSI, button, pressure sensor reads and subscriptions
 - Built-in protocol support for Lovense, Satisfyer, Svakom (V5 / Pulse), and MonsterPub
@@ -89,7 +88,7 @@ No additional setup required. Uses the browser's Web Bluetooth API.
 ```dart
 import 'package:remote_toy_kit/remote_toy_kit.dart';
 
-final kit = RemoteToyKit(isSpecV4: true); // or false for V3
+final kit = RemoteToyKit();
 await kit.initialize();
 ```
 
@@ -117,7 +116,7 @@ for (final feature in device.features) {
 
 ### 5. Send commands
 
-#### Output (V4)
+#### Output
 
 ```dart
 final outputCmd = OutputCmd.v4(
@@ -132,23 +131,7 @@ await device.executeCommand(
 );
 ```
 
-#### Output (V3 — deprecated)
-
-```dart
-await device.executeCommand(
-  message: RemoteToyClientMessage.scalarCmd(
-    scalars: [
-      ScalarSubcommand(
-        featureIndex: 0,
-        scalar: 0.5,
-        outputType: OutputType.vibrate,
-      ),
-    ],
-  ),
-);
-```
-
-#### Input / Sensor read (V4)
+#### Input / Sensor read
 
 ```dart
 final response = await device.executeCommand(
@@ -196,7 +179,7 @@ import 'package:remote_toy_kit/remote_toy_kit.dart';
 
 void setupDependencies() {
   GetIt.instance
-      .registerLazySingleton<RemoteToyKit>(() => RemoteToyKit(isSpecV4: true));
+      .registerLazySingleton<RemoteToyKit>(() => RemoteToyKit());
 }
 
 Future<void> main() async {
@@ -330,7 +313,7 @@ class DeviceStateMachine {
 }
 ```
 
-### Send output commands per device feature (V4)
+### Send output commands per device feature
 
 Iterate over a device's features and send matching output commands using `convertClientCmdtoOutputCmd`:
 
@@ -367,7 +350,6 @@ Future<void> readBattery(RemoteToyDevice device) async {
       .firstOrNull;
   if (batteryFeature == null) return;
 
-  // V4
   final response = await device.executeCommand(
     message: RemoteToyClientMessage.inputCmd(
       command: InputCmd.v4(
@@ -456,7 +438,7 @@ Future<void> safeDisconnect(RemoteToyDevice device) async {
 
 | Member | Description |
 |---|---|
-| `factory RemoteToyKit({required bool isSpecV4})` | Creates a platform-appropriate instance (mobile or web) |
+| `factory RemoteToyKit()` | Creates a platform-appropriate instance (mobile or web) |
 | `Future<void> initialize()` | Loads device config and sets up BLE resources |
 | `bool get isSearchInProgress` | Whether a scan is currently running |
 | `Stream<RemoteToySearchedDevice> search()` | Scans for nearby BLE devices |
@@ -485,14 +467,10 @@ Future<void> safeDisconnect(RemoteToyDevice device) async {
 
 | Factory | Description |
 |---|---|
-| `.outputCmd({required OutputCmd command})` | V4 output command (vibrate, rotate, etc.) |
-| `.inputCmd({required InputCmd command})` | V4 input command (sensor read/subscribe) |
-| `.scalarCmd(...)` | *(Deprecated)* V3 scalar output |
-| `.rotateCmd(...)` | *(Deprecated)* V3 rotation output |
-| `.linearCmd(...)` | *(Deprecated)* V3 linear output |
-| `.sensorReadCmd(...)` | V3 sensor read |
-| `.sensorSubscribeCmd(...)` | V3 sensor subscribe |
-| `.sensorUnsubscrubeCmd(...)` | V3 sensor unsubscribe |
+| `.outputCmd({required OutputCmd command})` | Output command (vibrate, rotate, etc.) |
+| `.inputCmd({required InputCmd command})` | Input command (sensor read/subscribe) |
+| `.sensorSubscribeCmd(...)` | Sensor subscribe |
+| `.sensorUnsubscrubeCmd(...)` | Sensor unsubscribe |
 | `.stopDeviceCmd()` | Stop the connected device |
 | `.stopAllDevices()` | Stop all connected devices |
 
@@ -503,7 +481,6 @@ Future<void> safeDisconnect(RemoteToyDevice device) async {
 | `OutputType` | `vibrate`, `rotate`, `oscillate`, `constrict`, `position`, `positionWithDuration`, `temperature`, `led`, `spray` |
 | `InputType` | `battery`, `rssi`, `button`, `pressure` |
 | `FeatureType` | All output + input types combined |
-| `DeviceConfigVersion` | `v3`, `v4` |
 
 ## Error Handling
 
@@ -533,15 +510,6 @@ Thrown during device communication and command execution.
 | `command_feature_index_error` | Feature index is out of range |
 | `command_feature_type_mismatch` | Command type doesn't match the feature |
 | `command_payload_invalid` | Invalid command payload |
-
-## Device Config Versions
-
-The SDK ships two bundled JSON configs under `assets/`:
-
-- **V4** (`buttplug-device-config-v4.json`) — preferred, richer feature model with typed output/input definitions and per-feature value ranges.
-- **V3** (`buttplug-device-config-v3.json`) — legacy format with actuator/sensor abstractions.
-
-Pass `isSpecV4: true` (recommended) or `false` when constructing `RemoteToyKit`.
 
 ## Development
 

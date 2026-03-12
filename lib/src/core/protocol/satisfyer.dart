@@ -75,12 +75,7 @@ class SatisfyerInitializer implements ProtocolInitializer {
   Future<ProtocolHandler> initialize({
     required Hardware hardware,
     required ProtocolAttributes protocolAttributes,
-    required bool isSpecV4,
   }) async {
-    if (!isSpecV4) {
-      logger.w('Satisfyer expects spec v4 device configuration');
-    }
-
     // Send an enable byte and wait for acknowledgment so the GATT queue is
     // clear before any control commands are sent.
     await _enable(hardware);

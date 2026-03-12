@@ -12,8 +12,7 @@ class Uint8ListOptionalJsonConverter
     try {
       final List<int> array = json.cast<int>();
       return Uint8List.fromList(array);
-    } catch (e) {
-      // TODO: log cast error
+    } catch (_) {
       return null;
     }
   }
@@ -33,8 +32,7 @@ class Uint8ListJsonConverter extends JsonConverter<Uint8List, List<dynamic>> {
     try {
       final List<int> array = json.cast<int>();
       return Uint8List.fromList(array);
-    } catch (e) {
-      // TODO: log cast error
+    } catch (_) {
       return Uint8List(0);
     }
   }

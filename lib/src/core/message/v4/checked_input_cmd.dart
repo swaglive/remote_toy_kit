@@ -39,8 +39,6 @@ sealed class CheckedInputCmd
 
   /// Try to create a checked input command from the given input command and protocol attributes.
   ///
-  /// This is only allowed for spec 4.0. required the protocol attributes's features has to be DeviceFeatureV4.
-  ///
   /// [cmd] is unchecked output command from app requested.
   /// [attributes] is the protocol attributes of the device.
   ///
@@ -61,17 +59,13 @@ sealed class CheckedInputCmd
 
     final inputType = cmd.inputType;
 
-    // Ensure the device feature contains the input type
-    // and return the first feature that contains the input type.
-    // If not found, throw an exception.
     final feature = features.firstWhere(
-      (feature) =>
-          (feature as DeviceFeatureV4).input?.contains(inputType) == true,
+      (feature) => feature.input?.contains(inputType) == true,
       orElse: () => throw RemoteToyDeviceException(
         code: RemoteToyDeviceException.codeDeviceFeatureNotFound,
         message: 'No feature found supporting input type $inputType',
       ),
-    ) as DeviceFeatureV4;
+    );
 
     return CheckedInputCmdV4(
       featureIndex: cmd.featureIndex,

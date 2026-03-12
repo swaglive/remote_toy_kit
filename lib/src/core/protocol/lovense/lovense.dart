@@ -6,7 +6,6 @@ library core.protocol.lovense.lovense;
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math' as math;
 
 import '../../../configuration/configuration.dart';
 import '../../../util/logger.dart';
@@ -15,7 +14,6 @@ import '../../message/message.dart';
 import '../protocol.dart';
 
 /// Lovense protocol handlers
-import 'lovense_v3.dart';
 import 'lovense_stroker.dart';
 import 'lovense_single_actuator.dart';
 import 'lovense_multi_actuator.dart';
@@ -24,7 +22,6 @@ import 'lovense_rotate_vibrator.dart';
 import 'lovense_max.dart';
 
 export 'lovense_base.dart';
-export 'lovense_v3.dart';
 export 'lovense_stroker.dart';
 export 'lovense_single_actuator.dart';
 export 'lovense_multi_actuator.dart';
@@ -149,7 +146,6 @@ class LovenseInitializer implements ProtocolInitializer {
   Future<ProtocolHandler> initialize({
     required Hardware hardware,
     required ProtocolAttributes protocolAttributes,
-    required bool isSpecV4,
   }) async {
     final vibratorCount = (protocolAttributes.features ?? [])
         .where((e) => [FeatureType.vibrate, FeatureType.oscillate]
@@ -189,33 +185,10 @@ class LovenseInitializer implements ProtocolInitializer {
         vibratorCount > 2 ||
         deviceType == "H";
 
-    /// New Lovense devices seem to be moving to the simplified LVS:<bytearray>; command format.
-    /// I'm not sure if there's a good way to detect this.
-    // final bool useLvs = deviceType == "OC";
-
     logger.d(
         "Device type $deviceType initialized with $vibratorCount vibrators, $outputCount outputs, ${useMply ? '' : 'not '}using Mply");
 
-    /// Base class for Lovense protocol handlers with shared properties
-    /// Handle spec v3 first because it's the current implementation for most common device type.
-    if (!isSpecV4) {
-      // Workaround for spec 3.0, will fully clean up later
-      const LinearInfo linearInfo = (0, 0);
-      if (deviceType == 'BA') {
-        _updateLinearMovement(
-          hardware: hardware,
-          linearInfo: linearInfo,
-        );
-      }
-
-      return LovenseSpecV3(
-        rotationDirection: false,
-        vibratorCount: vibratorCount,
-        useMply: useMply,
-        deviceType: deviceType,
-        linearInfo: linearInfo,
-      );
-    } else if (deviceType == 'H' || deviceType == 'BA') {
+    if (deviceType == 'H' || deviceType == 'BA') {
       return LovenseStroker(
         hardware: hardware,
         needRangeZerod: deviceType == 'H',
@@ -234,66 +207,4 @@ class LovenseInitializer implements ProtocolInitializer {
       return LovenseDualActuator();
     }
   }
-}
-
-/// Update the linear movement of the Lovense device
-/// NOTE: This function here will be deprecated after spec 4.0 is fully released,
-/// since same function has been implemented in the lovense_stroker.dart file, and will be used instead.
-///
-/// [hardware] is the hardware instance
-/// [linearInfo] is a pair of (Position, Duration)
-@Deprecated('Will be deprecated after spec 4.0 is fully released')
-void _updateLinearMovement({
-  required Hardware hardware,
-  required (int, int) linearInfo,
-}) {
-  int lastGoalPosition = 0, currentMoveAmount = 0, currentPosition = 0;
-  Future<void> loop() async {
-    // If there is no connection, break the loop
-    if (!hardware.connected) return;
-
-    // See if we've updated our goal position
-    final int goalPosition = linearInfo.$1;
-    // If we have and it's not the same, recalculate based on current status.
-    if (lastGoalPosition != goalPosition) {
-      lastGoalPosition = goalPosition;
-      // We move every 100ms, so divide the movement into that many chunks.
-      // If we're moving so fast it'd be under our 100ms boundary, just move in 1 step.
-      final moveSteps = math.max(linearInfo.$2 ~/ 100, 1);
-      currentMoveAmount = (goalPosition - currentPosition) ~/ moveSteps;
-    }
-
-    // If we aren't going anywhere, just pause then restart
-    if (currentPosition == lastGoalPosition) {
-      Future.delayed(const Duration(milliseconds: 100), loop);
-      return;
-    }
-
-    // Update our position, make sure we don't overshoot
-    currentPosition += currentMoveAmount;
-    if (currentMoveAmount < 0) {
-      if (currentPosition < lastGoalPosition) {
-        currentPosition = lastGoalPosition;
-      }
-    } else {
-      if (currentPosition > lastGoalPosition) {
-        currentPosition = lastGoalPosition;
-      }
-    }
-
-    final String lovenseCmd = 'FSetSite:$currentPosition;';
-    final HardwareWriteCmd hardwareCmd = HardwareWriteCmd(
-      endpoint: Endpoint.tx,
-      data: utf8.encode(lovenseCmd),
-      writeWithResponse: false,
-    );
-    try {
-      await hardware.writeValue(cmd: hardwareCmd);
-      Future.delayed(const Duration(milliseconds: 100), loop);
-    } catch (e) {
-      logger.w('Update linear movement error, stop loop', ex: e);
-    }
-  }
-
-  loop();
 }

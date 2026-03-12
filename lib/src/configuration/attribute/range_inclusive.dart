@@ -38,8 +38,7 @@ class RangeInclusiveJsonConverter
     try {
       final List<int> list = json.cast<int>();
       return RangeInclusive(start: list[0], end: list[1]);
-    } catch (e) {
-      // TODO: log cast error
+    } catch (_) {
       return const RangeInclusive(start: 0, end: 0);
     }
   }

@@ -29,7 +29,6 @@ class ConnectToyWebTask {
     required this.specifier,
     required this.protocolIdentifier,
     required this.protocols,
-    required this.isSpecV4,
   });
 
   final DeviceConfiguration deviceConfiguration;
@@ -37,7 +36,6 @@ class ConnectToyWebTask {
   final BluetoothLESpecifier specifier;
   final ProtocolIdentifier protocolIdentifier;
   final Map<String, ProtocolIdentifierFactory> protocols;
-  final bool isSpecV4;
 
   Future<RemoteToyDevice> call() async {
     logger.d('RemoteToyDevice start connecting (${device.name})');
@@ -153,7 +151,6 @@ class ConnectToyWebTask {
     final ProtocolHandler protocolHandler = await initializer.initialize(
       hardware: hardware,
       protocolAttributes: protocolAttributes,
-      isSpecV4: isSpecV4,
     );
 
     return RemoteToyDevice.build(

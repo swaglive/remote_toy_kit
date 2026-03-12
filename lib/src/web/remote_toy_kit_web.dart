@@ -20,8 +20,7 @@ class RemoteToyKitWeb implements RemoteToyKit {
 
   bool _isSearching = false;
 
-  final DeviceConfigVersion deviceConfigVersion;
-  RemoteToyKitWeb({required this.deviceConfigVersion});
+  RemoteToyKitWeb();
 
   /// Lazily runs [_doInitialize] once. The `??=` operator caches the returned
   /// [Future] on first call, so subsequent calls return the same future
@@ -32,8 +31,7 @@ class RemoteToyKitWeb implements RemoteToyKit {
 
   Future<void> _doInitialize() async {
     _protocolIdentifierFactories = loadProtocolIdentifierFactories();
-    _deviceConfiguration =
-        await loadDeviceConfiguration(deviceConfigVersion: deviceConfigVersion);
+    _deviceConfiguration = await loadDeviceConfiguration();
   }
 
   @override
@@ -81,7 +79,6 @@ class RemoteToyKitWeb implements RemoteToyKit {
         specifier: specifier,
         protocolIdentifier: protocolIdentifier,
         protocols: protocolIdentifierFactories,
-        isSpecV4: deviceConfigVersion == DeviceConfigVersion.v4,
       );
       _isSearching = false;
       String name = device.name ?? '';

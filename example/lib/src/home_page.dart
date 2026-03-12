@@ -15,7 +15,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    remoteToyKit = RemoteToyKit(isSpecV4: true);
+    remoteToyKit = RemoteToyKit();
     remoteToyKit.initialize();
     super.initState();
   }

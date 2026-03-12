@@ -83,7 +83,7 @@ class _FakeHardware implements Hardware {
 ProtocolAttributes _buildAttributes({int outputCount = 1}) {
   final features = List<DeviceFeature>.generate(
     outputCount,
-    (index) => DeviceFeature.v4(
+    (index) => DeviceFeature(
       id: 'feature-$index',
       index: index,
       output: const DeviceFeatureOutput(
@@ -150,7 +150,6 @@ void main() {
         await initializer.initialize(
           hardware: hardware,
           protocolAttributes: _buildAttributes(outputCount: 2),
-          isSpecV4: true,
         );
 
         final writeCmd =
@@ -173,7 +172,6 @@ void main() {
         await initializer.initialize(
           hardware: hardware,
           protocolAttributes: _buildAttributes(outputCount: 1),
-          isSpecV4: true,
         );
 
         expect(wrote, isFalse);

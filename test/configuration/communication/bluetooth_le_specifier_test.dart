@@ -70,13 +70,13 @@ void main() {
         // Arrange
         final a = _specifier(
           manufacturerData: [
-            BluetoothLEManufacturerData(company: 0x1234),
+            const BluetoothLEManufacturerData(company: 0x1234),
           ],
         );
         final b = _specifier(
           manufacturerData: [
-            BluetoothLEManufacturerData(company: 0x1234),
-            BluetoothLEManufacturerData(company: 0x5678),
+            const BluetoothLEManufacturerData(company: 0x1234),
+            const BluetoothLEManufacturerData(company: 0x5678),
           ],
         );
 
@@ -88,7 +88,7 @@ void main() {
         // Arrange
         final a = _specifier(
           manufacturerData: [
-            BluetoothLEManufacturerData(company: 0x1234),
+            const BluetoothLEManufacturerData(company: 0x1234),
           ],
         );
         final b = _specifier(manufacturerData: []);
@@ -101,7 +101,7 @@ void main() {
         // Arrange: config has company only, device has company + payload
         final config = _specifier(
           manufacturerData: [
-            BluetoothLEManufacturerData(company: 93),
+            const BluetoothLEManufacturerData(company: 93),
           ],
         );
         final device = _specifier(
@@ -129,7 +129,7 @@ void main() {
         );
         final device = _specifier(
           manufacturerData: [
-            BluetoothLEManufacturerData(company: 93),
+            const BluetoothLEManufacturerData(company: 93),
           ],
         );
 

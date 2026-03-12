@@ -29,14 +29,12 @@ class ConnectToyMobileTask {
     required this.device,
     required this.specifier,
     required this.protocolIdentifier,
-    required this.isSpecV4,
   });
 
   final DeviceConfiguration deviceConfiguration;
   final BluetoothDevice device;
   final BluetoothLESpecifier specifier;
   final ProtocolIdentifier protocolIdentifier;
-  final bool isSpecV4;
 
   Future<RemoteToyDevice> call() async {
     logger.d('RemoteToyDevice start connecting (${device.advName})');
@@ -112,7 +110,6 @@ class ConnectToyMobileTask {
     final ProtocolHandler protocolHandler = await initializer.initialize(
       hardware: hardware,
       protocolAttributes: protocolAttributes,
-      isSpecV4: isSpecV4,
     );
 
     return RemoteToyDevice.build(

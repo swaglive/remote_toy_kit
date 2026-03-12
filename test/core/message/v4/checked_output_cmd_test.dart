@@ -13,16 +13,16 @@ ProtocolAttributes _attributes({
 }) =>
     ProtocolAttributes(name: 'test-device', features: features);
 
-DeviceFeatureV4 _vibrateFeature({
+DeviceFeature _vibrateFeature({
   RangeInclusive range = const RangeInclusive(start: 0, end: 20),
 }) =>
-    DeviceFeature.v4(
+    DeviceFeature(
       id: 'vibrate-0',
       index: 0,
       output: DeviceFeatureOutput(
         vibrate: DeviceFeatureOutputValueProperties(value: range),
       ),
-    ) as DeviceFeatureV4;
+    );
 
 void main() {
   group('CheckedOutputCmd.tryFromDeviceAttributes', () {
